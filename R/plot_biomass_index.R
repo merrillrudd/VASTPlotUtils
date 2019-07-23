@@ -28,7 +28,7 @@
 #' @export
 plot_biomass_index <-
 function( TmbData, Sdreport, DirName=paste0(getwd(),"/"), PlotName="Index", interval_width=1,
-  strata_names=NULL, category_names, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
+  strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
   create_covariance_table=FALSE, ... ){
 
   require(ggplot2)
