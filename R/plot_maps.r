@@ -28,7 +28,8 @@
 #' @param Panel Whether to plot years for a given category (\code{Panel="Category"}) or categories for a given year ((\code{Panel="Year"})  in each panel figure
 #' @param Ylim ylimits for each panel
 #' @param Xlim xlimits for each panel
-#' @param FileName Directory (absolute path) and base for filenames of plots
+#' @param DirName Directory (absolute path)
+#' @param PlotName plot names are automatically generated but option to add a modifier
 #' @param category_names character vector specifying names for different categories (only used for R package \code{VAST})
 #' @param covar_names character vector specifying covariate names for labeling figures
 #' @param legend Boolean whether to plot legend or not
@@ -43,7 +44,7 @@
 plot_maps <-
 function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
          TmbData=NULL, spatial_list=NULL, Panel="Category",
-         FileName=paste0(getwd(),"/"), format="png",
+         DirName=getwd(), PlotName=NULL, format="png",
          category_names=NULL, covar_names=NULL,
          legend=TRUE, textmargin=NULL, ...){
 
@@ -342,12 +343,12 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
               facet_wrap(~year) + 
               mytheme() +
               xlab("Eastings") + ylab("Northings")
-          if(Nplot!=1) p <- p + ggtitle(paste(category_names[cI], plot_names[plot_num]))
-          if(Nplot==1) p <- p + ggtitle(paste(plot_names[plot_num]))
+          if(Nplot!=1) p <- p + ggtitle(paste(category_names[cI], plot_names[plot_num], PlotName))
+          if(Nplot==1) p <- p + ggtitle(paste(plot_names[plot_num], PlotName))
 
-          if(!is.null(FileName)){
-            if(Nplot!=1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_", cI, "_byCat.png")), p, width=8,height=8)
-            if(Nplot==1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_byCat.png")), p, width=8,height=8)
+          if(!is.null(DirName)){
+            if(Nplot!=1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_", cI, "_byCat.png")), p, width=8,height=8)
+            if(Nplot==1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_byCat.png")), p, width=8,height=8)
           }          
       }
     }
@@ -383,12 +384,12 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
 
           if(n_c == 1) width = 6; height = 5
           if(n_c > 1) width = 10; height = 5
-          if(Nplot!=1) p <- p + ggtitle(paste(year_labels[tI], plot_names[plot_num]))
-          if(Nplot==1) p <- p + ggtitle(paste(plot_names[plot_num]))
+          if(Nplot!=1) p <- p + ggtitle(paste(year_labels[tI], plot_names[plot_num], PlotName))
+          if(Nplot==1) p <- p + ggtitle(paste(plot_names[plot_num], PlotName))
 
-          if(!is.null(FileName)){
-            if(Nplot!=1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_", tI, "_byYear.png")), p, width=width, height=height)
-            if(Nplot==1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_byYear.png")), p, width = width, height = height)
+          if(!is.null(DirName)){
+            if(Nplot!=1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_", tI, "_byYear.png")), p, width=width, height=height)
+            if(Nplot==1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_byYear.png")), p, width = width, height = height)
           }          
       }
     }

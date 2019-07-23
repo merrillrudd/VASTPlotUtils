@@ -6,7 +6,7 @@
 \usage{
 plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim = NULL,
   Ylim = NULL, TmbData = NULL, spatial_list = NULL,
-  Panel = "Category", FileName = paste0(getwd(), "/"),
+  Panel = "Category", DirName = getwd(), PlotName = NULL,
   format = "png", category_names = NULL, covar_names = NULL,
   legend = TRUE, textmargin = NULL, ...)
 }
@@ -45,7 +45,9 @@ plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim = NULL,
 
 \item{Panel}{Whether to plot years for a given category (\code{Panel="Category"}) or categories for a given year ((\code{Panel="Year"})  in each panel figure}
 
-\item{FileName}{Directory (absolute path) and base for filenames of plots}
+\item{DirName}{Directory (absolute path)}
+
+\item{PlotName}{plot names are automatically generated but option to add a modifier}
 
 \item{format}{image format}
 
