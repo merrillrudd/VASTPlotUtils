@@ -29,8 +29,6 @@
 #' @param Ylim ylimits for each panel
 #' @param Xlim xlimits for each panel
 #' @param FileName Directory (absolute path) and base for filenames of plots
-#' @param year_labels Year names for labeling panels
-#' @param years_to_plot integer vector, specifying positions of \code{year_labelss} for plotting (used to avoid plotting years with no data, etc.)
 #' @param category_names character vector specifying names for different categories (only used for R package \code{VAST})
 #' @param covar_names character vector specifying covariate names for labeling figures
 #' @param legend Boolean whether to plot legend or not
@@ -42,9 +40,9 @@
 
 #' @export
 plot_maps <-
-function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
+function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
          TmbData=NULL, spatial_list=NULL, Panel="Category",
-         FileName=paste0(getwd(),"/"), year_labels=NULL, years_to_plot=NULL, Format="png",
+         FileName=paste0(getwd(),"/"), Format="png",
          category_names=NULL, covar_names=NULL,
          legend=TRUE, ...){
 
@@ -54,8 +52,8 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
   # Fill in missing inputs
   if( "D_xt" %in% names(Report)){
     # SpatialDeltaGLMM
-    if( is.null(year_labels) ) year_labels = 1:ncol(Report$D_xt)
-    if( is.null(years_to_plot) ) years_to_plot = 1:ncol(Report$D_xt)
+    year_labels = 1:ncol(Report$D_xt)
+    years_to_plot = 1:ncol(Report$D_xt)
     category_names = "singlespecies"
     Ncategories = length(category_names)
     Nyears = dim(Report$D_xt)[2]
@@ -295,10 +293,8 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
         }
     }
 
-          ## indicates Method == "Stream_network"
-    if(all(is.null(TmbData$parent_s))==FALSE){
       require(ggplot2)
-      if(all(is.null(spatial_list))) stop("add spatial_list (output from FishStatsUtils::make_spatial_info) to use ggplot2 plots and/or plot stream network.")
+      if(all(is.null(spatial_list))) stop("add spatial_list (output from FishStatsUtils::make_spatial_info) to use ggplot2 plots.")
 
             mytheme <- function (base_size = 14, base_family = "") 
             {
@@ -316,7 +312,6 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
                       panel.grid.minor = element_line(colour = "grey98", size = 0.5),
                       strip.background = element_rect(fill = "grey80", colour = "grey50", size = 0.2))
             }
-    }
 
 
     # Plot for each category
@@ -327,12 +322,6 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
         if(length(dim(Array_xct))==2) Return = Mat_xt = Array_xct
         if(length(dim(Array_xct))==3) Return = Mat_xt = Array_xct[,cI,]
 
-        if(all(is.null(TmbData$parent_s))){
-          # Do plot
-          if( is.null(mfrow)) mfrow = c(ceiling(sqrt(length(years_to_plot))), ceiling(length(years_to_plot)/ceiling(sqrt(length(years_to_plot)))))
-          if(add==FALSE) par( mfrow=mfrow )
-          PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat_xt[,years_to_plot,drop=FALSE], PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num],ifelse(Nplot>1,paste0("--",category_names[cI]),"")), year_labels=year_labels[years_to_plot], Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
-        } else {
           ## matrix is number of nodes by number of years
           if(is.null(dim(Mat_xt)))  n_t = 1 else n_t <- dim(Mat_xt)[2]
           if(n_t != length(year_labels)) stop("number of years in density array does not match Data_Geostat years")
@@ -359,7 +348,6 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
             if(Nplot!=1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_", cI, "_byCat.png")), p, width=8,height=8)
             if(Nplot==1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_byCat.png")), p, width=8,height=8)
           }          
-        }
       }
     }
     # Plot for each year
@@ -373,12 +361,6 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
         } else { Ncategories = dim(Mat_xc)[2] }
         Return = Mat_xc = array( as.vector(Mat_xc), dim=c(dim(Array_xct)[1],Ncategories)) # Reformat to make sure it has same format for everything
 
-        if(all(is.null(TmbData$parent_s))){
-          # Do plot
-          if( is.null(mfrow)) mfrow = c(ceiling(sqrt(length(category_names))), ceiling(length(category_names)/ceiling(sqrt(length(category_names)))))
-          if(add==FALSE) par( mfrow=mfrow )
-          PlotMap_Fn( MappingDetails=MappingDetails, Mat=Mat_xc, PlotDF=PlotDF, MapSizeRatio=MapSizeRatio, Xlim=Xlim, Ylim=Ylim, FileName=paste0(FileName,plot_codes[plot_num],ifelse(Nplot>1,paste0("--",year_labels[years_to_plot][tI]),"")), year_labels=category_names, Rescale=Rescale, Rotate=Rotate, Format=Format, Res=Res, zone=zone, Cex=Cex, textmargin=textmargin[plot_num], add=add, pch=pch, Legend=Legend, mfrow=mfrow, plot_legend_fig=plot_legend_fig, ...)
-        } else { 
          ## matrix is number of nodes by number of years
           n_c <- dim(Mat_xc)[2]
           if(n_c > 1) {
@@ -407,7 +389,6 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim, Ylim,
             if(Nplot!=1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_", tI, "_byYear.png")), p, width=width, height=height)
             if(Nplot==1) ggsave(file.path(FileName, paste0(plot_names[plot_num], "_byYear.png")), p, width = width, height = height)
           }          
-        }
       }
     }
   }
