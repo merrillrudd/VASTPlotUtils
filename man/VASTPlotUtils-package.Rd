@@ -13,9 +13,9 @@
 \packageDESCRIPTION{VASTPlotUtils}
 
 \author{
-\packageAuthor{James Thorson, Merrill Rudd}
+\packageAuthor{VASTPlotUtils}
 
-Maintainer: \packageMaintainer{Merrill Rudd}
+Maintainer: \packageMaintainer{VASTPlotUtils}
 }
 }
 
