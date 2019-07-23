@@ -7,8 +7,8 @@
 plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim = NULL,
   Ylim = NULL, TmbData = NULL, spatial_list = NULL,
   Panel = "Category", DirName = getwd(), PlotName = NULL,
-  format = "png", category_names = NULL, covar_names = NULL,
-  legend = TRUE, textmargin = NULL, ...)
+  category_names = NULL, covar_names = NULL, legend = TRUE,
+  textmargin = NULL, ...)
 }
 \arguments{
 \item{plot_set}{integer-vector defining plots to create
@@ -48,8 +48,6 @@ plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim = NULL,
 \item{DirName}{Directory (absolute path)}
 
 \item{PlotName}{plot names are automatically generated but option to add a modifier}
-
-\item{format}{image format}
 
 \item{category_names}{character vector specifying names for different categories (only used for R package \code{VAST})}
 

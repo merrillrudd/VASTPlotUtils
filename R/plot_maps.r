@@ -33,7 +33,6 @@
 #' @param category_names character vector specifying names for different categories (only used for R package \code{VAST})
 #' @param covar_names character vector specifying covariate names for labeling figures
 #' @param legend Boolean whether to plot legend or not
-#' @param format image format
 #' @param textmargin option to include y-axis text
 #' @param ... arguments passed to \code{par}
 #'
@@ -44,7 +43,7 @@
 plot_maps <-
 function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
          TmbData=NULL, spatial_list=NULL, Panel="Category",
-         DirName=getwd(), PlotName=NULL, format="png",
+         DirName=getwd(), PlotName=NULL,
          category_names=NULL, covar_names=NULL,
          legend=TRUE, textmargin=NULL, ...){
 
