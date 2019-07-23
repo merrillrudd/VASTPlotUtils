@@ -1,0 +1,10 @@
+Package: VASTPlotUtils
+Type: Package
+Title: Plotting functions complementary to the VAST R package for spatio-temporal modeling
+Version: 1.0
+Date: 2019-07-23
+Author: James Thorson, Merrill Rudd
+Maintainer: <merrillrudd@gmail.com>
+Description: Modified R functions and new R functions for plotting output and diagnostics for spatio-temporal models, relying on VAST model structure.
+License: MIT
+RoxygenNote: 6.1.1
