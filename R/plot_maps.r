@@ -328,14 +328,14 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
           if(n_t != length(year_labels)) stop("number of years in density array does not match Data_Geostat years")
           if(n_t > 1) {
             xct <- lapply(1:n_t, function(x){
-              out <- data.frame('value'=Mat_xt[,x], 'year'=year_labels[x], spatial_list$loc_x, 'category'=category_names[cI])
+              out <- data.frame('value'=Mat_xt[,x], 'year'=year_labels[x], spatial_list$loc_g, 'category'=category_names[cI])
               return(out)
             })
             xct <- do.call(rbind, xct)
-          } else xct <- data.frame('value'=Mat_xt, 'year'=year_labels, spatial_list$loc_x, "category"=category_names[1])
+          } else xct <- data.frame('value'=Mat_xt, 'year'=year_labels, spatial_list$loc_g, "category"=category_names[1])
 
           p <- ggplot(xct) +
-              geom_point(aes(x = E_km, y = N_km, color = value), cex=Cex) +#, ...) +
+              geom_point(aes(x = E_km, y = N_km, color = value), ...) +
               scale_color_distiller(palette = "Spectral") +
               scale_x_continuous(breaks=quantile(xct$E_km, prob=c(0.1,0.5,0.9)), labels=round(quantile(xct$E_km, prob=c(0.1,0.5,0.9)),0)) +
               # guides(color=guide_legend(title=plot_codes[plot_num])) +
@@ -366,11 +366,11 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
           n_c <- dim(Mat_xc)[2]
           if(n_c > 1) {
             xct <- lapply(1:n_c, function(x){
-              out <- data.frame('value'=Mat_xc[,x], 'year'=years_to_plot[tI], spatial_list$loc_x, 'category'=category_names[x])
+              out <- data.frame('value'=Mat_xc[,x], 'year'=years_to_plot[tI], spatial_list$loc_g, 'category'=category_names[x])
               return(out)
             })
             xct <- do.call(rbind, xct)
-          } else xct <- data.frame('value'=Mat_xc, 'year'=years_to_plot[tI], spatial_list$loc_x, "category"='total')
+          } else xct <- data.frame('value'=Mat_xc, 'year'=years_to_plot[tI], spatial_list$loc_g, "category"='total')
 
           p <- ggplot(xct) +
               geom_point(aes(x = E_km, y = N_km, color = value), cex=2) +
