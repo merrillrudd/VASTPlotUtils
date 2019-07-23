@@ -4,11 +4,11 @@
 \alias{plot_maps}
 \title{{Plot standard maps}}
 \usage{
-plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim, Ylim,
-  TmbData = NULL, spatial_list = NULL, Panel = "Category",
-  FileName = paste0(getwd(), "/"), year_labels = NULL,
-  years_to_plot = NULL, Format = "png", category_names = NULL,
-  covar_names = NULL, legend = TRUE, ...)
+plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim = NULL,
+  Ylim = NULL, TmbData = NULL, spatial_list = NULL,
+  Panel = "Category", FileName = paste0(getwd(), "/"),
+  Format = "png", category_names = NULL, covar_names = NULL,
+  legend = TRUE, ...)
 }
 \arguments{
 \item{plot_set}{integer-vector defining plots to create
@@ -46,10 +46,6 @@ plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim, Ylim,
 \item{Panel}{Whether to plot years for a given category (\code{Panel="Category"}) or categories for a given year ((\code{Panel="Year"})  in each panel figure}
 
 \item{FileName}{Directory (absolute path) and base for filenames of plots}
-
-\item{year_labels}{Year names for labeling panels}
-
-\item{years_to_plot}{integer vector, specifying positions of \code{year_labelss} for plotting (used to avoid plotting years with no data, etc.)}
 
 \item{category_names}{character vector specifying names for different categories (only used for R package \code{VAST})}
 

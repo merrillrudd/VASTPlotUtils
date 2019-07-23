@@ -4,8 +4,7 @@
 \alias{plot_biomass_index}
 \title{{Plot index of abundance}}
 \usage{
-plot_biomass_index(TmbData, Sdreport, Year_Set = NULL,
-  Years2Include = NULL, DirName = paste0(getwd(), "/"),
+plot_biomass_index(TmbData, Sdreport, DirName = paste0(getwd(), "/"),
   PlotName = "Index", interval_width = 1, strata_names = NULL,
   category_names = NULL, use_biascorr = TRUE, plot_legend = TRUE,
   total_area_km2 = NULL, plot_log = FALSE, width = 4, height = 4,
@@ -24,7 +23,7 @@ plot_biomass_index(TmbData, Sdreport, Year_Set = NULL,
 
 \item{strata_names}{names for spatial strata}
 
-\item{category_names}{names for categories}
+\item{category_names}{names for categories or a label if no categories are used}
 
 \item{use_biascorr}{Boolean, whether to use bias-corrected estimates if available}
 
