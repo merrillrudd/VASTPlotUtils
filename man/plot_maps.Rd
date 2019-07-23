@@ -7,8 +7,8 @@
 plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim = NULL,
   Ylim = NULL, TmbData = NULL, spatial_list = NULL,
   Panel = "Category", FileName = paste0(getwd(), "/"),
-  Format = "png", category_names = NULL, covar_names = NULL,
-  legend = TRUE, ...)
+  format = "png", category_names = NULL, covar_names = NULL,
+  legend = TRUE, textmargin = NULL, ...)
 }
 \arguments{
 \item{plot_set}{integer-vector defining plots to create
@@ -47,15 +47,17 @@ plot_maps(plot_set = 3, Report, Sdreport = NULL, Xlim = NULL,
 
 \item{FileName}{Directory (absolute path) and base for filenames of plots}
 
+\item{format}{image format}
+
 \item{category_names}{character vector specifying names for different categories (only used for R package \code{VAST})}
 
 \item{covar_names}{character vector specifying covariate names for labeling figures}
 
 \item{legend}{Boolean whether to plot legend or not}
 
-\item{...}{arguments passed to \code{par}}
+\item{textmargin}{option to include y-axis text}
 
-\item{format}{image format}
+\item{...}{arguments passed to \code{par}}
 }
 \value{
 Mat_xt a matrix (rows: modeled knots; column: modeled year) for plotted output of last element of \code{plot_set}
