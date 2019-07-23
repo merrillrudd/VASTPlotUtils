@@ -9,7 +9,7 @@
 #' @param PlotName Name for plot
 #' @param interval_width width for confidence intervals
 #' @param strata_names names for spatial strata
-#' @param category_names names for categories
+#' @param category_names names for categories or a label if no categories are used
 #' @param use_biascorr Boolean, whether to use bias-corrected estimates if available
 #' @param plot_legend Add legend for labelling colors
 #' @param total_area_km2 Total area for calculating a design-based estimator using one design-stratum (only recommended for model exploration)
@@ -27,8 +27,8 @@
 
 #' @export
 plot_biomass_index <-
-function( TmbData, Sdreport, Year_Set=NULL, Years2Include=NULL, DirName=paste0(getwd(),"/"), PlotName="Index", interval_width=1,
-  strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
+function( TmbData, Sdreport, DirName=paste0(getwd(),"/"), PlotName="Index", interval_width=1,
+  strata_names=NULL, category_names, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
   create_covariance_table=FALSE, ... ){
 
   require(ggplot2)
