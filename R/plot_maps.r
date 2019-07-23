@@ -44,7 +44,7 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
          TmbData=NULL, spatial_list=NULL, Panel="Category",
          FileName=paste0(getwd(),"/"), Format="png",
          category_names=NULL, covar_names=NULL,
-         legend=TRUE, ...){
+         legend=TRUE, textmargin=NULL, ...){
 
   # local functions
   logsum = function(vec){ max(vec) + log(sum(exp(vec-max(vec)))) }
