@@ -61,40 +61,40 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
   }
   if( "D_xct" %in% names(Report)){
     # VAST Version < 2.0.0
-    if( is.null(year_labels) ) year_labels = 1:dim(Report$D_xct)[3]
-    if( is.null(years_to_plot) ) years_to_plot = 1:dim(Report$D_xct)[3]
+    year_labels = 1:dim(Report$D_xct)[3]
+    years_to_plot = 1:dim(Report$D_xct)[3]
     if( is.null(category_names) ) category_names = 1:dim(Report$D_xct)[2]
     Ncategories = dim(Report$D_xct)[2]
     Nyears = dim(Report$D_xct)[3]
   }
   if( "D_xcy" %in% names(Report)){
     # VAST Version >= 2.0.0
-    if( is.null(year_labels) ) year_labels = 1:dim(Report$D_xcy)[3]
-    if( is.null(years_to_plot) ) years_to_plot = 1:dim(Report$D_xcy)[3]
+    year_labels = 1:dim(Report$D_xcy)[3]
+    years_to_plot = 1:dim(Report$D_xcy)[3]
     if( is.null(category_names) ) category_names = 1:dim(Report$D_xcy)[2]
     Ncategories = dim(Report$D_xcy)[2]
     Nyears = dim(Report$D_xcy)[3]
   }
   if( "D_gcy" %in% names(Report)){
     # VAST Version >= 8.0.0
-    if( is.null(year_labels) ) year_labels = 1:dim(Report$D_gcy)[3]
-    if( is.null(years_to_plot) ) years_to_plot = 1:dim(Report$D_gcy)[3]
+    year_labels = 1:dim(Report$D_gcy)[3]
+    years_to_plot = 1:dim(Report$D_gcy)[3]
     if( is.null(category_names) ) category_names = 1:dim(Report$D_gcy)[2]
     Ncategories = dim(Report$D_gcy)[2]
     Nyears = dim(Report$D_gcy)[3]
   }
   if("dhat_ktp" %in% names(Report)){
     # MIST Version <= 14
-    if( is.null(year_labels) ) year_labels = 1:dim(Report$dhat_ktp)[2]
-    if( is.null(years_to_plot) ) years_to_plot = 1:dim(Report$dhat_ktp)[2]
+    year_labels = 1:dim(Report$dhat_ktp)[2]
+    years_to_plot = 1:dim(Report$dhat_ktp)[2]
     if( is.null(category_names) ) category_names = 1:dim(Report$dhat_ktp)[3]
     Ncategories = dim(Report$dhat_ktp)[3]
     Nyears = dim(Report$dhat_ktp)[2]
   }
   if("dpred_ktp" %in% names(Report)){
     # MIST Version >= 15
-    if( is.null(year_labels) ) year_labels = 1:dim(Report$dpred_ktp)[2]
-    if( is.null(years_to_plot) ) years_to_plot = 1:dim(Report$dpred_ktp)[2]
+    year_labels = 1:dim(Report$dpred_ktp)[2]
+    years_to_plot = 1:dim(Report$dpred_ktp)[2]
     if( is.null(category_names) ) category_names = 1:dim(Report$dpred_ktp)[3]
     Ncategories = dim(Report$dpred_ktp)[3]
     Nyears = dim(Report$dpred_ktp)[2]

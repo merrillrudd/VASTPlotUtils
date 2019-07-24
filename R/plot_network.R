@@ -5,23 +5,31 @@
 #' \code{plot_network} generates figure showing network nodes, directional arrows, and observations
 #' 
 #' @param Network_sz_LL
-#' @param Data_Geostat data frame with observations
+#' @param Data data frame with observations
 #' @param byYear plot observations by year, default = FALSE
+#' @param byValue plot observations representing size of point by their value
+#' @param value_label label for the value observed
 #' @param root default TRUE to show root nodes, FALSE in case there are other root nodes that are not meaningful.
 #' @param arrows default = FALSE do not plot segments
 #' @param FilePath path to figure directory
 #' @param FileName label for plot
+#' @param obs_color option for hard-coding the colors for figures, used to match colors for plotting only one category when other figures are multiple categories (optional)
 #' @return Figure plotting stream network and observations
 #' @export
-plot_network <- function(Network_sz_LL, Data_Geostat=NULL,  byYear = FALSE, FilePath=NULL, FileName="Network", arrows = FALSE, root = FALSE){
+plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE, value_label=NULL, FilePath=NULL, FileName="Network", arrows = FALSE, root = FALSE, obs_color=NULL){
   
   ### across years
   aa <- ggplot(Network_sz_LL) +
     mytheme()
   
   ## add roots underneath points
-  if(root == TRUE) aa <- aa + geom_point(data = Network_sz_LL %>% filter(parent_s==0), aes(x = Lon, y = Lat), color="goldenrod", cex=5)
+  if(root == TRUE) aa <- aa + geom_point(data = Network_sz_LL %>% filter(parent_s==0), aes(x = Lon, y = Lat), color="goldenrod", cex=5, alpha=0.5)
   
+  ## add points and complete figure
+  aa <- aa +
+    geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), color = "gray", alpha=0.6) +
+    xlab("Longitude") + ylab("Latitude")
+
   ## option to add arrows
   if(arrows == TRUE){
     l2 <- lapply(1:nrow(Network_sz_LL), function(x){
@@ -34,21 +42,27 @@ plot_network <- function(Network_sz_LL, Data_Geostat=NULL,  byYear = FALSE, File
       return(out)
     })
     l2 <- do.call(rbind, l2)
-    aa <- aa + geom_segment(data=l2, aes(x = Lon2,y = Lat2, xend = Lon, yend = Lat), col="gray")
+    aa <- aa + geom_segment(data=l2, aes(x = Lon,y = Lat, xend = Lon2, yend = Lat2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
   }
   
-  ## add points and complete figure
-  aa <- aa +
-    geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), color = "gray", alpha=0.6) +
-    xlab("Longitude") + ylab("Latitude")
-  
+
   ## option to add observations
-  if(all(is.null(Data_Geostat))==FALSE){
-    aa <- aa + 
-      geom_point(data = Data_Geostat, aes(x = Lon, y = Lat, fill=Category), cex=2, pch=22) + 
-      scale_fill_brewer(palette = "Set1")
+  if(all(is.null(Data))==FALSE & byYear==FALSE){
+    if(byValue==FALSE){
+      aa <- aa + 
+        geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category), cex=2, pch=22) + 
+        scale_fill_brewer(palette = "Set1")      
+    }
+    if(byValue==TRUE){
+      if(all(is.null(value_label))) stop("please include label for value type")
+      aa <- aa + 
+        geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22) + 
+        scale_fill_brewer(palette = "Set1") +
+        guides(size=guide_legend(title=value_label))           
+    }
+
   }
-  if(all(is.null(Data_Geostat)) | length(unique(Data_Geostat$Category))==1){
+  if(all(is.null(Data)) | length(unique(Data$Category))==1){
     aa <- aa + guides(fill = FALSE)
     width <- 9
     height <- 8
@@ -62,10 +76,10 @@ plot_network <- function(Network_sz_LL, Data_Geostat=NULL,  byYear = FALSE, File
   
   if(byYear == TRUE){
     
-    if(all(is.null(Data_Geostat))) stop("Error: must include observations in data frame 'Data_Geostat' to plot network by year.")
+    if(all(is.null(Data))) stop("Error: must include observations in data frame 'Data' to plot network by year.")
     
     ### by year
-    years <- unique(Data_Geostat$Year)[order(unique(Data_Geostat$Year))]	
+    years <- unique(Data$Year)[order(unique(Data$Year))]	
     
     Network_sz_LL_wYear <- lapply(1:length(years), function(x){
       out <- cbind.data.frame(Network_sz_LL, "Year"=years[x])
@@ -87,11 +101,34 @@ plot_network <- function(Network_sz_LL, Data_Geostat=NULL,  byYear = FALSE, File
     
     ## option to add observations
     ## option to add observations
-    bb <- bb + 
-      geom_point(data = Data_Geostat, aes(x = Lon, y = Lat, fill=Category), cex=1.8, pch=22, alpha=0.6) + 
-      scale_fill_brewer(palette = "Set1") +
-      scale_x_continuous(breaks=round(quantile(Data_Geostat$Lon,prob=c(0.2,0.5,0.8)),0), labels=round(quantile(Data_Geostat$Lon,prob=c(0.2,0.5,0.8)),0)) 
-    if(length(unique(Data_Geostat$Category))==1){
+    bb <- bb + scale_x_continuous(breaks=round(quantile(Data$Lon,prob=c(0.2,0.8)),1), labels=round(quantile(Data$Lon,prob=c(0.2,0.8)),1)) 
+    if(byValue==FALSE){
+      if(is.null(obs_color)){
+        bb <- bb + 
+          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category), cex=1.8, pch=22, alpha=0.6) + 
+          scale_fill_brewer(palette = "Set1")
+      }
+      if(all(is.null(obs_color))==FALSE){
+        if(length(obs_color)!=length(unique(Data$Category))) stop("input observation colors must match number of categories in data to plot")
+        bb <- bb + 
+          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category), cex=1.8, pch=22, alpha=0.6, fill=obs_color)
+      }      
+    }
+    if(byValue==TRUE){
+      if(is.null(obs_color)){
+        bb <- bb + 
+          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6) + 
+          scale_fill_brewer(palette = "Set1")
+      }
+      if(all(is.null(obs_color))==FALSE){
+        if(length(obs_color)!=length(unique(Data$Category))) stop("input observation colors must match number of categories in data to plot")
+        bb <- bb + 
+          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6, fill=obs_color) +
+          guides(size=guide_legend(title=value_label))           
+      }        
+    }
+
+    if(length(unique(Data$Category))==1){
       bb <- bb + guides(fill = FALSE)
       width <- 8
       height = 8
