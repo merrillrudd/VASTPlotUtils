@@ -62,7 +62,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
     }
 
   }
-  if(all(is.null(Data)) | length(unique(Data$Category))==1){
+  if(all(is.null(Data)) | (length(unique(Data$Category))==1 & byValue==FALSE)){
     aa <- aa + guides(fill = FALSE)
     width <- 9
     height <- 8
@@ -128,7 +128,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
       }        
     }
 
-    if(length(unique(Data$Category))==1){
+    if(length(unique(Data$Category))==1 & byValue==FALSE){
       bb <- bb + guides(fill = FALSE)
       width <- 8
       height = 8
@@ -137,7 +137,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
       height = 8
     }	
     
-    if(all(is.null(FilePath))==FALSE) ggsave(file.path(FilePath, paste0(FileName, "_byYear.png")), bb, width = width, height = height)
+    if(all(is.null(FilePath))==FALSE) ggsave(file.path(FilePath, paste0(FileName, ".png")), bb, width = width, height = height)
     if(all(is.null(FilePath))) print(bb)
   }
   
