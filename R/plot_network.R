@@ -17,63 +17,64 @@
 #' @return Figure plotting stream network and observations
 #' @export
 plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE, value_label=NULL, FilePath=NULL, FileName="Network", arrows = FALSE, root = FALSE, obs_color=NULL){
-  
-  ### across years
-  aa <- ggplot(Network_sz_LL) +
-    mytheme()
-  
-  ## add roots underneath points
-  if(root == TRUE) aa <- aa + geom_point(data = Network_sz_LL %>% filter(parent_s==0), aes(x = Lon, y = Lat), color="goldenrod", cex=5, alpha=0.5)
-  
-  ## add points and complete figure
-  aa <- aa +
-    geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), color = "gray", alpha=0.6) +
-    xlab("Longitude") + ylab("Latitude")
 
-  ## option to add arrows
-  if(arrows == TRUE){
-    l2 <- lapply(1:nrow(Network_sz_LL), function(x){
-      parent <- Network_sz_LL$parent_s[x]
-      find <- Network_sz_LL %>% filter(child_s == parent)
-      if(nrow(find)>0) out <- cbind.data.frame(Network_sz_LL[x,], 'Lon2'=find$Lon, 'Lat2'=find$Lat)
-      if(nrow(find)==0) out <- cbind.data.frame(Network_sz_LL[x,], 'Lon2'=NA, 'Lat2'=NA)
-      # if(nrow(find)>0) out <- cbind.data.frame(Network_sz_LL[x,], 'long2'=find$long, 'lat2'=find$lat)
-      # if(nrow(find)==0) out <- cbind.data.frame(Network_sz_LL[x,], 'long2'=NA, 'lat2'=NA)
-      return(out)
-    })
-    l2 <- do.call(rbind, l2)
-    aa <- aa + geom_segment(data=l2, aes(x = Lon,y = Lat, xend = Lon2, yend = Lat2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
-  }
-  
+  if(byYear==FALSE){
+    ### across years
+    aa <- ggplot(Network_sz_LL) +
+      mytheme()
+    
+    ## add roots underneath points
+    if(root == TRUE) aa <- aa + geom_point(data = Network_sz_LL %>% filter(parent_s==0), aes(x = Lon, y = Lat), color="goldenrod", cex=5, alpha=0.5)
+    
+    ## add points and complete figure
+    aa <- aa +
+      geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), color = "gray", alpha=0.6) +
+      xlab("Longitude") + ylab("Latitude")  
 
-  ## option to add observations
-  if(all(is.null(Data))==FALSE & byYear==FALSE){
-    if(byValue==FALSE){
-      aa <- aa + 
-        geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category), cex=2, pch=22) + 
-        scale_fill_brewer(palette = "Set1")      
+    ## option to add arrows
+    if(arrows == TRUE){
+      l2 <- lapply(1:nrow(Network_sz_LL), function(x){
+        parent <- Network_sz_LL$parent_s[x]
+        find <- Network_sz_LL %>% filter(child_s == parent)
+        if(nrow(find)>0) out <- cbind.data.frame(Network_sz_LL[x,], 'Lon2'=find$Lon, 'Lat2'=find$Lat)
+        if(nrow(find)==0) out <- cbind.data.frame(Network_sz_LL[x,], 'Lon2'=NA, 'Lat2'=NA)
+        # if(nrow(find)>0) out <- cbind.data.frame(Network_sz_LL[x,], 'long2'=find$long, 'lat2'=find$lat)
+        # if(nrow(find)==0) out <- cbind.data.frame(Network_sz_LL[x,], 'long2'=NA, 'lat2'=NA)
+        return(out)
+      })
+      l2 <- do.call(rbind, l2)
+      aa <- aa + geom_segment(data=l2, aes(x = Lon,y = Lat, xend = Lon2, yend = Lat2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
     }
-    if(byValue==TRUE){
-      if(all(is.null(value_label))) stop("please include label for value type")
-      aa <- aa + 
-        geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22) + 
-        scale_fill_brewer(palette = "Set1") +
-        guides(size=guide_legend(title=value_label))           
-    }
+      
 
+    ## option to add observations
+    if(all(is.null(Data))==FALSE & byYear==FALSE){
+      if(byValue==FALSE){
+        aa <- aa + 
+          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category), cex=2, pch=22) + 
+          scale_fill_brewer(palette = "Set1")      
+      }
+      if(byValue==TRUE){
+        if(all(is.null(value_label))) stop("please include label for value type")
+        aa <- aa + 
+          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22) + 
+          scale_fill_brewer(palette = "Set1") +
+          guides(size=guide_legend(title=value_label))           
+      } 
+
+    }
+    if(all(is.null(Data)) | (length(unique(Data$Category))==1 & byValue==FALSE)){
+      aa <- aa + guides(fill = FALSE)
+      width <- 9
+      height <- 8
+    } else {
+      width = 10
+      height = 8
+    }
+    if(all(is.null(FilePath))==FALSE) ggsave(file.path(FilePath, paste0(FileName, ".png")), aa, width = width, height = height)
+    if(all(is.null(FilePath))) print(aa)
   }
-  if(all(is.null(Data)) | (length(unique(Data$Category))==1 & byValue==FALSE)){
-    aa <- aa + guides(fill = FALSE)
-    width <- 9
-    height <- 8
-  } else {
-    width = 10
-    height = 8
-  }
-  if(all(is.null(FilePath))==FALSE) ggsave(file.path(FilePath, paste0(FileName, ".png")), aa, width = width, height = height)
-  if(all(is.null(FilePath))) print(aa)
-  
-  
+    
   if(byYear == TRUE){
     
     if(all(is.null(Data))) stop("Error: must include observations in data frame 'Data' to plot network by year.")
