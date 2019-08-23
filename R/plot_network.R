@@ -31,6 +31,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
       geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), color = "gray", alpha=0.6) +
       xlab("Longitude") + ylab("Latitude")  
 
+
     ## option to add arrows
     if(arrows == TRUE){
       l2 <- lapply(1:nrow(Network_sz_LL), function(x){
@@ -45,7 +46,6 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
       l2 <- do.call(rbind, l2)
       aa <- aa + geom_segment(data=l2, aes(x = Lon,y = Lat, xend = Lon2, yend = Lat2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
     }
-      
 
     ## option to add observations
     if(all(is.null(Data))==FALSE & byYear==FALSE){
@@ -73,6 +73,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
     }
     if(all(is.null(FilePath))==FALSE) ggsave(file.path(FilePath, paste0(FileName, ".png")), aa, width = width, height = height)
     if(all(is.null(FilePath))) print(aa)
+    return(aa)
   }
     
   if(byYear == TRUE){
@@ -140,6 +141,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
     
     if(all(is.null(FilePath))==FALSE) ggsave(file.path(FilePath, paste0(FileName, ".png")), bb, width = width, height = height)
     if(all(is.null(FilePath))) print(bb)
+    return(bb)
   }
   
 }
