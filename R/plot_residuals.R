@@ -4,6 +4,7 @@
 #' @description
 #' \code{plot_residuals} shows average Pearson residual for every knot for encounter probability and positive catch rate components
 #'
+#' @param type density, pred2 (second linear predictor), pred1 (first linear predictor)
 #' @param fit model fit from fit_model
 #' @param Data input data in format of Data_Geostat
 #' @param Network_sz_LL stream network info
@@ -16,14 +17,15 @@
 #' }
 
 #' @export
-plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath ){
+plot_residuals = function( type = "density", fit, Data, Network_sz_LL, category_names, FilePath ){
 
   ##################
   # Basic inputs
   ##################
 
-  ## raw residuals
-  pred_dens <- fit$Report$D_gcy
+if(type == "density"){
+  pred_dens <- fit$Report$D_gcy  
+  ## density
   obs_dens <- array(NA, dim=dim(pred_dens))
 
   years <- unique(Data$Year[order(Data$Year)])
@@ -36,6 +38,8 @@ plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath ){
       obs_dens[sub$Knot,c,t] <- sub$Catch_KG/sub$AreaSwept_km2
     }
   }
+}
+
 
   resid_dens <- obs_dens - pred_dens
   resid_dens_list <- lapply(1:n_c, function(x){
