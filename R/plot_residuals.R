@@ -17,64 +17,114 @@
 #' }
 
 #' @export
-plot_residuals = function( type = "density", fit, Data, Network_sz_LL, category_names, FilePath ){
+plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath ){
 
   ##################
   # Basic inputs
   ##################
+  Report <- fit$Report
+  Data_Geostat <- Data
 
-if(type == "density"){
-  pred_dens <- fit$Report$D_gcy  
-  ## density
-  obs_dens <- array(NA, dim=dim(pred_dens))
-
-  years <- unique(Data$Year[order(Data$Year)])
-  n_t <- length(years)
-  n_c <- dim(pred_dens)[2]
-  n_g <- dim(pred_dens)[1]
-  for(t in 1:n_t){
-    for(c in 1:n_c){
-      sub <- Data %>% filter(Year==years[t]) %>% filter(CategoryNum == c)
-      obs_dens[sub$Knot,c,t] <- sub$Catch_KG/sub$AreaSwept_km2
+## Pearson resids for detection and catch rate
+  D_i <- Report$R1_i*Report$R2_i
+  PR1_i <- PR2_i <- rep(NA, length(D_i))
+  for(i in 1:length(D_i)){
+    ## bernoulli for presence
+    mui <- Report$R1_i[i]
+    obs <- as.numeric(Data_Geostat$Catch_KG[i]>0)
+    PR1_i[i] <- (obs-mui)/sqrt(mui*(1-mui)/1)
+    ## log-normal for catch rate; NA for 0 observations
+    obs <- Data_Geostat$Catch_KG[i]
+    if(obs>0){
+      ## make sure to use the right variance as this depends on gear type
+      # gr <- as.numeric(Data_Geostat$Gear[i])
+      # PR2_i[i] <- (log(obs)-log(Report$R2_i[i])+Report$SigmaM[1]^2/2)/Report$SigmaM[1]
+      PR2_i[i] <- (log(obs)-log(Report$R2_i[i]))/log(Report$R2_i[i])
     }
   }
-}
+  df <- cbind(Data_Geostat, PR1=PR1_i, PR2=PR2_i, positive=ifelse(Data_Geostat$Catch_KG>0,1,0))
+  xlim <- range(df$Lon); ylim <- range(df$Lat)
+  # tmp <- 1:3
+  # if(results$model!='combined') tmp <- 1
+  # for(gr in tmp){
+    # gt <- levels(Data_Geostat$Gear)[1]
+    g <- ggplot(subset(df, positive==1), aes(Lon, Lat, size=abs(PR2), color=PR2>0))+
+      geom_point(alpha=.25) + facet_wrap('Year') + xlim(xlim) + ylim(ylim)+
+      scale_size('Pearson Resid', range=c(0,3))  + theme_bw()
+    ggsave(file.path(FilePath, 'Pearson_resid_catchrate.png'), plot=g,
+           width=7, height=5)
+    g <- ggplot(subset(df), aes(Lon, Lat, size=abs(PR1), color=PR1>0))+
+      geom_point(alpha=.25) + facet_wrap('Year') + xlim(xlim) + ylim(ylim)+
+      scale_size('Pearson Resid', range=c(0,3))  + theme_bw()
+    ggsave(file.path(FilePath, 'Pearson_resid_encounter.png'), plot=g,
+           width=7, height=5)
+
+sub <- subset(df, positive==1)
+sresid <- sum(sub$PR2, na.rm=TRUE )
+write.csv(as.numeric(sresid), file=file.path(FilePath, "Sum_catchrate_resid.csv"))
 
 
-  resid_dens <- obs_dens - pred_dens
-  resid_dens_list <- lapply(1:n_c, function(x){
-    obs_dens_x <- data.frame(obs_dens[,x,])
-    colnames(obs_dens_x) <- years
-    obs_dens_x <- obs_dens_x %>% mutate('child_s'=1:nrow(obs_dens_x)) %>% gather(key = "Year", value = "Observed", -child_s)
+# if(type == "density"){
+#   pred_dens <- fit$Report$D_gcy  
+#   ## density
+#   obs_dens <- array(NA, dim=dim(pred_dens))
 
-    pred_dens_x <- data.frame(pred_dens[,x,])
-    colnames(pred_dens_x) <- years
-    pred_dens_x <- pred_dens_x %>% mutate('child_s'=1:nrow(pred_dens_x)) %>% gather(key = "Year", value = "Predicted", -child_s)
+#   years <- unique(Data$Year[order(Data$Year)])
+#   n_t <- length(years)
+#   n_c <- dim(pred_dens)[2]
+#   n_g <- dim(pred_dens)[1]
+#   for(t in 1:n_t){
+#     for(c in 1:n_c){
+#       sub <- Data %>% filter(Year==years[t]) %>% filter(CategoryNum == c)
+#       obs_dens[sub$Knot,c,t] <- sub$Catch_KG/sub$AreaSwept_km2
+#     }
+#   }
+# }
 
-    op <- full_join(obs_dens_x, pred_dens_x)
 
-    resid_dens_x <- op %>% mutate("RawResidual"=Observed - Predicted) %>% mutate("PearsonResidual" = (Observed - Predicted)/sqrt(Predicted))
-    resid_dens_xll <- full_join(resid_dens_x, Network_sz_LL) %>% mutate("Category" = category_names[x])
-    return(resid_dens_xll)
-  })
-  resid_dens <- do.call(rbind, resid_dens_list)
+#   resid_dens <- obs_dens - pred_dens
+#   resid_dens_list <- lapply(1:n_c, function(x){
+#     obs_dens_x <- data.frame(obs_dens[,x,])
+#     colnames(obs_dens_x) <- years
+#     obs_dens_x <- obs_dens_x %>% mutate('child_s'=1:nrow(obs_dens_x)) %>% gather(key = "Year", value = "Observed", -child_s)
+
+#     pred_dens_x <- data.frame(pred_dens[,x,])
+#     colnames(pred_dens_x) <- years
+#     pred_dens_x <- pred_dens_x %>% mutate('child_s'=1:nrow(pred_dens_x)) %>% gather(key = "Year", value = "Predicted", -child_s)
+
+#     op <- full_join(obs_dens_x, pred_dens_x)
+
+#     resid_dens_x <- op 
+#     resid <- unlist(sapply(1:nrow(resid_dens_x), function(y){
+#       obs <- resid_dens_x$Observed[y]
+#       if(is.na(obs)==FALSE){
+#         if(obs > 0){
+#           out <- (log(resid_dens_x$Observed[y]) - resid_dens_x$Predicted[y])/sqrt(resid_dens_x$Predicted[y])
+#         } else{ out <- NA}
+#       } else{ out <- NA}
+#     })) 
+#     resid_dens_x$PearsonResidual <- resid
+#     resid_dens_xll <- full_join(resid_dens_x, Network_sz_LL) %>% mutate("Category" = category_names[x])
+#     return(resid_dens_xll)
+#   })
+#   resid_dens <- do.call(rbind, resid_dens_list)
    
-   for(c in 1:n_c){
-    presid <- ggplot(resid_dens %>% filter(Category == category_names[c]) %>% filter(is.na(PearsonResidual)==FALSE)) +
-            geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), color = "gray") +
-            geom_point(aes(x = Lon, y = Lat, color = PearsonResidual), cex=2) +
-            facet_wrap(.~Year) +
-            xlab("Longitude") +  ylab("Latitude") +
-            ggtitle(paste0(category_names[c], " Pearson residuals")) +
-            mytheme()
-    ggsave(file.path(FilePath, paste0("Pearson_residuals_", category_names[c], ".png")), presid, width = 8, height=6)
-   }
+#    for(c in 1:n_c){
+#     presid <- ggplot(resid_dens %>% filter(Category == category_names[c]) %>% filter(is.na(PearsonResidual)==FALSE)) +
+#             geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), color = "gray") +
+#             geom_point(aes(x = Lon, y = Lat, color = PearsonResidual), cex=2) +
+#             facet_wrap(.~Year) +
+#             xlab("Longitude") +  ylab("Latitude") +
+#             ggtitle(paste0(category_names[c], " Pearson residuals")) +
+#             mytheme()
+#     ggsave(file.path(FilePath, paste0("Pearson_residuals_", category_names[c], ".png")), presid, width = 8, height=6)
+#    }
 
-  pfit <- ggplot(resid_dens %>% filter(is.na(PearsonResidual)==FALSE)) +
-        geom_point(aes(x = Predicted, y = PearsonResidual)) +
-        facet_wrap(.~Category, scales="free") +
-        mytheme()
-  ggsave(file.path(FilePath, paste0("Pearson_residuals_vs_predicted.png")), pfit)
+#   pfit <- ggplot(resid_dens %>% filter(is.na(PearsonResidual)==FALSE)) +
+#         geom_point(aes(x = Predicted, y = PearsonResidual)) +
+#         facet_wrap(.~Category, scales="free") +
+#         mytheme()
+#   ggsave(file.path(FilePath, paste0("Pearson_residuals_vs_predicted.png")), pfit)
 
 # return(resid_dens)
 }
