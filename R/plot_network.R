@@ -6,6 +6,7 @@
 #' 
 #' @param Network_sz_LL
 #' @param Data data frame with observations
+#' @param plot_type 0 = data (Catch_KG), 1 = PR1 residuals for first linear predictor, or 2 PR2 residuals for second linear predictor
 #' @param byYear plot observations by year, default = FALSE
 #' @param byValue plot observations representing size of point by their value
 #' @param value_label label for the value observed
@@ -16,7 +17,7 @@
 #' @param obs_color option for hard-coding the colors for figures, used to match colors for plotting only one category when other figures are multiple categories (optional)
 #' @return Figure plotting stream network and observations
 #' @export
-plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE, value_label=NULL, FilePath=NULL, FileName="Network", arrows = FALSE, root = FALSE, obs_color=NULL){
+plot_network <- function(Network_sz_LL, Data=NULL, plot_type = 0, byYear = FALSE, byValue=FALSE, value_label=NULL, FilePath=NULL, FileName="Network", arrows = FALSE, root = FALSE, obs_color=NULL){
 
   if(byYear==FALSE){
     ### across years
@@ -57,9 +58,11 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
       if(byValue==TRUE){
         if(all(is.null(value_label))) stop("please include label for value type")
         aa <- aa + 
-          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22) + 
           scale_fill_brewer(palette = "Set1") +
           guides(size=guide_legend(title=value_label))           
+        if(plot_type == 0) aa <- aa +  geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6)
+        if(plot_type == 1) aa <- aa +  geom_point(data = Data, aes(x = Lon, y = Lat, fill=PR1>0, size=abs(PR1)), pch=22, alpha=0.25) + scale_size("Pearson residual", range = c(0,3))
+        if(plot_type == 2) aa <- aa +  geom_point(data = Data %>% filter(positive == 1), aes(x = Lon, y = Lat, fill=PR2>0, size=abs(PR2)), pch=22, alpha=0.25) + scale_size("Pearson residual", range = c(0,3))
       } 
 
     }
@@ -82,7 +85,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
     
     ### by year
     years <- unique(Data$Year)[order(unique(Data$Year))]	
-    
+      
     Network_sz_LL_wYear <- lapply(1:length(years), function(x){
       out <- cbind.data.frame(Network_sz_LL, "Year"=years[x])
       return(out)
@@ -119,14 +122,21 @@ plot_network <- function(Network_sz_LL, Data=NULL, byYear = FALSE, byValue=FALSE
     if(byValue==TRUE){
       if(is.null(obs_color)){
         bb <- bb + 
-          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6) + 
+          # geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6) + 
           scale_fill_brewer(palette = "Set1")
+        if(plot_type == 0) bb <- bb +  geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6)
+        if(plot_type == 1) bb <- bb +  geom_point(data = Data, aes(x = Lon, y = Lat, fill=PR1>0, size=abs(PR1)), pch=22, alpha=0.25) + scale_size("Pearson residual", range = c(0,3))
+        if(plot_type == 2) bb <- bb +  geom_point(data = Data %>% filter(positive == 1), aes(x = Lon, y = Lat, fill=PR2>0, size=abs(PR2)), pch=22, alpha=0.25) + scale_size("Pearson residual", range = c(0,3))
       }
       if(all(is.null(obs_color))==FALSE){
         if(length(obs_color)!=length(unique(Data$Category))) stop("input observation colors must match number of categories in data to plot")
         bb <- bb + 
-          geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6, fill=obs_color) +
-          guides(size=guide_legend(title=value_label))           
+          # geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22, alpha=0.6, fill=obs_color) +
+          guides(size=guide_legend(title=value_label))    
+        if(plot_type == 0) bb <- bb +  geom_point(data = Data, aes(x = Lon, y = Lat, fill=Category, size=Catch_KG), pch=22)
+        if(plot_type == 1) bb <- bb +  geom_point(data = Data, aes(x = Lon, y = Lat, fill=PR1>0, size=abs(PR1)), pch=22) + scale_size("Pearson residual", range = c(0,3))
+        if(plot_type == 2) bb <- bb +  geom_point(data = Data %>% filter(positive == 1), aes(x = Lon, y = Lat, fill=PR2>0, size=abs(PR2)), pch=22) + scale_size("Pearson residual", range = c(0,3))
+       
       }        
     }
 
