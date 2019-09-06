@@ -3,7 +3,7 @@
 #'
 #' @description{ plots an index proportion to population abundance}
 #'
-#' @param TmbData Formatted data inputs, from `VAST::make_data(...)`
+#' @param fit model fit dataframe
 #' @param Sdreport output from fit$parameter_estimates$SD
 #' @param DirName Directory for saving plot and table
 #' @param PlotName Name for plot
@@ -27,11 +27,13 @@
 
 #' @export
 plot_biomass_index <-
-function( TmbData, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
+function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
   create_covariance_table=FALSE, ... ){
 
   require(ggplot2)
+
+  TmbData = fit$data_list
 
   # Informative errors
   if(is.null(Sdreport)) stop("Sdreport is NULL; please provide Sdreport")
@@ -71,8 +73,8 @@ function( TmbData, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   }
 
   # Fill in missing
-  Year_Set = 1:TmbData$n_t
-  Years2Include = 1:TmbData$n_t
+  Year_Set = fit$year_labels
+  Years2Include = fit$years_to_plot
   if( is.null(strata_names) ) strata_names = 1:TmbData$n_l
   if( is.null(category_names) ) category_names = 1:TmbData$n_c
 
