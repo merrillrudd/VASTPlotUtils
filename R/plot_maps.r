@@ -21,7 +21,7 @@
 #'   \item{plot_set=15}{Individual covariate effects on encounter probability}
 #'   \item{plot_set=16}{Individual covariate effects on positive catch rates}
 #' }
-#' @param Report tagged list of outputs from TMB model via \code{Obj$report()}
+#' @param fit tagged list of outputs from TMB model via \code{Obj$report()}
 #' @param TmbData optional tagged list of outputs from fit$data_list or VAST::make_data
 #' @param spatial_list required for Method == Stream_network, optional for other spatial models, tagged list of outputs from \code{make_spatial_info}
 #' @param Sdreport Standard deviation outputs from TMB model via \code{sdreport(Obj)}
@@ -41,7 +41,7 @@
 
 #' @export
 plot_maps <-
-function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
+function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
          TmbData=NULL, spatial_list=NULL, Panel="Category",
          DirName=NULL, PlotName=NULL,
          category_names=NULL, covar_names=NULL,
@@ -50,51 +50,42 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
   # local functions
   logsum = function(vec){ max(vec) + log(sum(exp(vec-max(vec)))) }
 
+  year_labels = fit$year_labels
+  years_to_plot = fit$years_to_plot
+  Report <- fit$Report
   # Fill in missing inputs
   if( "D_xt" %in% names(Report)){
     # SpatialDeltaGLMM
-    year_labels = 1:ncol(Report$D_xt)
-    years_to_plot = 1:ncol(Report$D_xt)
     category_names = "singlespecies"
     Ncategories = length(category_names)
     Nyears = dim(Report$D_xt)[2]
   }
   if( "D_xct" %in% names(Report)){
     # VAST Version < 2.0.0
-    year_labels = 1:dim(Report$D_xct)[3]
-    years_to_plot = 1:dim(Report$D_xct)[3]
     if( is.null(category_names) ) category_names = 1:dim(Report$D_xct)[2]
     Ncategories = dim(Report$D_xct)[2]
     Nyears = dim(Report$D_xct)[3]
   }
   if( "D_xcy" %in% names(Report)){
     # VAST Version >= 2.0.0
-    year_labels = 1:dim(Report$D_xcy)[3]
-    years_to_plot = 1:dim(Report$D_xcy)[3]
     if( is.null(category_names) ) category_names = 1:dim(Report$D_xcy)[2]
     Ncategories = dim(Report$D_xcy)[2]
     Nyears = dim(Report$D_xcy)[3]
   }
   if( "D_gcy" %in% names(Report)){
     # VAST Version >= 8.0.0
-    year_labels = 1:dim(Report$D_gcy)[3]
-    years_to_plot = 1:dim(Report$D_gcy)[3]
     if( is.null(category_names) ) category_names = 1:dim(Report$D_gcy)[2]
     Ncategories = dim(Report$D_gcy)[2]
     Nyears = dim(Report$D_gcy)[3]
   }
   if("dhat_ktp" %in% names(Report)){
     # MIST Version <= 14
-    year_labels = 1:dim(Report$dhat_ktp)[2]
-    years_to_plot = 1:dim(Report$dhat_ktp)[2]
     if( is.null(category_names) ) category_names = 1:dim(Report$dhat_ktp)[3]
     Ncategories = dim(Report$dhat_ktp)[3]
     Nyears = dim(Report$dhat_ktp)[2]
   }
   if("dpred_ktp" %in% names(Report)){
     # MIST Version >= 15
-    year_labels = 1:dim(Report$dpred_ktp)[2]
-    years_to_plot = 1:dim(Report$dpred_ktp)[2]
     if( is.null(category_names) ) category_names = 1:dim(Report$dpred_ktp)[3]
     Ncategories = dim(Report$dpred_ktp)[3]
     Nyears = dim(Report$dpred_ktp)[2]
