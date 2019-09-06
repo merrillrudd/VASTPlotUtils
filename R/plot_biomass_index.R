@@ -27,7 +27,7 @@
 
 #' @export
 plot_biomass_index <-
-function( TmbData, Sdreport, DirName=paste0(getwd(),"/"), PlotName="Index", interval_width=1,
+function( TmbData, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
   create_covariance_table=FALSE, ... ){
 
@@ -233,13 +233,18 @@ function( TmbData, Sdreport, DirName=paste0(getwd(),"/"), PlotName="Index", inte
   # Plot biomass and Bratio
   if(all(is.integer(TmbData$b_i))){
     Plot_suffix = "Count"
-  } else { Plot_suffix = "Biomass"}
+  } else{
+    if(all(round(TmbData$b_i,0) %in% c(0,1))){
+      Plot_suffix = "Encounter"
+    } else { Plot_suffix = "Biomass"}
+  } 
+  
   if( !is.null(Bratio_ctl) ) Plot_suffix = c( Plot_suffix, "Bratio" )
 
   for( plotI in 1:length(Plot_suffix) ){
 
 
-      if( Plot_suffix[plotI]=="Count" ){ Array_ctl = Index_ctl * 1000; log_Array_ctl = log_Index_ctl }
+      if( Plot_suffix[plotI] %in% c("Count","Encounter") ){ Array_ctl = Index_ctl * 1000; log_Array_ctl = log_Index_ctl }
       if( Plot_suffix[plotI]=="Biomass" ){ Array_ctl = Index_ctl; log_Array_ctl = log_Index_ctl }
       if( Plot_suffix[plotI]=="Bratio" ){ Array_ctl = Bratio_ctl; log_Array_ctl = log_Bratio_ctl }
 
@@ -260,7 +265,7 @@ function( TmbData, Sdreport, DirName=paste0(getwd(),"/"), PlotName="Index", inte
       })
       blank_info <- data.frame(Category = c(sapply(1:TmbData$n_c, function(x) rep(category_names[x], 2))), x = 0, y = c(sapply(1:TmbData$n_c, function(x) Ylim[[x]])))
       
-      name <- switch(Plot_suffix[plotI], "Biomass"="Abundance (metric tonnes)", "Count"="Abundance (individuals)", "Bratio"="Biomass ratio")
+      name <- switch(Plot_suffix[plotI], "Biomass"="Abundance (metric tonnes)", "Count"="Abundance (individuals)", "Encounter"="Abundance index", "Bratio"="Biomass ratio")
       byCat$Stratum <- factor(byCat$Stratum)
       p <- ggplot(byCat) +
         geom_segment(aes(x = Year, y = Ybound_low, xend = Year, yend = Ybound_high, color=Stratum)) +
@@ -277,6 +282,10 @@ function( TmbData, Sdreport, DirName=paste0(getwd(),"/"), PlotName="Index", inte
         mytheme()
       if(length(unique(strata_names))==1) p <- p + guides(color = FALSE)
       if(!is.null(DirName)) ggsave(paste0(DirName,"/",PlotName,"-",Plot_suffix[plotI],".png"), p)
+      if(is.null(DirName)){
+        dev.new()
+        print(p)
+      }
     }
 
 

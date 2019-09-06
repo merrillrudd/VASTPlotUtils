@@ -17,7 +17,7 @@
 #' }
 
 #' @export
-plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath ){
+plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath = NULL ){
 
   ##################
   # Basic inputs
@@ -53,18 +53,26 @@ plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath ){
     #   geom_point(alpha=.25) + facet_wrap('Year') + xlim(xlim) + ylim(ylim)+
     #   scale_size('Pearson Resid', range=c(0,3))  + theme_bw()
   g <- plot_network(Network_sz_LL = Network_sz_LL, Data = df, plot_type = 2, byYear=TRUE, byValue=TRUE)
-    ggsave(file.path(FilePath, 'Pearson_resid_catchrate.png'), plot=g,
+  if(is.null(FilePath)==FALSE) ggsave(file.path(FilePath, 'Pearson_resid_catchrate.png'), plot=g,
            width=7, height=5)
+  if(is.null(FilePath)){
+    dev.new()
+    print(g)
+  }
     # g <- ggplot(subset(df), aes(Lon, Lat, size=abs(PR1), color=PR1>0))+
     #   geom_point(alpha=.25) + facet_wrap('Year') + xlim(xlim) + ylim(ylim)+
     #   scale_size('Pearson Resid', range=c(0,3))  + theme_bw()
   g <- plot_network(Network_sz_LL = Network_sz_LL, Data=df, plot_type=1, byYear=TRUE, byValue = TRUE)
-    ggsave(file.path(FilePath, 'Pearson_resid_encounter.png'), plot=g,
+  if(is.null(FilePath)==FALSE)  ggsave(file.path(FilePath, 'Pearson_resid_encounter.png'), plot=g,
            width=7, height=5)
+  if(is.null(FilePath)){
+    dev.new()
+    print(g)
+  }
 
 sub <- subset(df, positive==1)
 sresid <- sum(sub$PR2, na.rm=TRUE )
-write.csv(as.numeric(sresid), file=file.path(FilePath, "Sum_catchrate_resid.csv"))
+if(is.null(FilePath)==FALSE) write.csv(as.numeric(sresid), file=file.path(FilePath, "Sum_catchrate_resid.csv"))
 
 
 # if(type == "density"){

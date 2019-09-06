@@ -349,7 +349,10 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
             if(Nplot!=1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_", cI, "_byCat.png")), p, width=8,height=8)
             if(Nplot==1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_byCat.png")), p, width=8,height=8)
           }      
-          if(is.null(DirName)) print(p)    
+          if(is.null(DirName)){
+            dev.new()
+            print(p)
+          }    
       }
     }
     # Plot for each year
@@ -391,7 +394,10 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
             if(Nplot!=1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_", tI, "_byYear.png")), p, width=width, height=height)
             if(Nplot==1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_byYear.png")), p, width = width, height = height)
           }       
-          if(is.null(DirName)) print(p)   
+          if(is.null(DirName)){
+            dev.new()
+            print(p) 
+          }  
       }
     }
   }
