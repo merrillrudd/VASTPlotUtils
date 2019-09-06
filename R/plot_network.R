@@ -72,7 +72,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, plot_type = 0, byYear = FALSE
       height <- 8
     } else {
       width = 10
-      height = 8
+      height = 9
     }
     if(all(is.null(FilePath))==FALSE) ggsave(file.path(FilePath, paste0(FileName, ".png")), aa, width = width, height = height)
     if(all(is.null(FilePath))) print(aa)

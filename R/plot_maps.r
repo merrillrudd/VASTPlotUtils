@@ -43,7 +43,7 @@
 plot_maps <-
 function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
          TmbData=NULL, spatial_list=NULL, Panel="Category",
-         DirName=getwd(), PlotName=NULL,
+         DirName=NULL, PlotName=NULL,
          category_names=NULL, covar_names=NULL,
          legend=TRUE, textmargin=NULL, ...){
 
@@ -348,7 +348,8 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
           if(!is.null(DirName)){
             if(Nplot!=1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_", cI, "_byCat.png")), p, width=8,height=8)
             if(Nplot==1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_byCat.png")), p, width=8,height=8)
-          }          
+          }      
+          if(is.null(DirName)) print(p)    
       }
     }
     # Plot for each year
@@ -389,7 +390,8 @@ function(plot_set=3, Report, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
           if(!is.null(DirName)){
             if(Nplot!=1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_", tI, "_byYear.png")), p, width=width, height=height)
             if(Nplot==1) ggsave(file.path(DirName, paste0(plot_names[plot_num], PlotName, "_byYear.png")), p, width = width, height = height)
-          }          
+          }       
+          if(is.null(DirName)) print(p)   
       }
     }
   }
