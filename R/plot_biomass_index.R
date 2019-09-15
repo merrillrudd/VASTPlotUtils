@@ -16,6 +16,7 @@
 #' @param plot_log Boolean, whether to plot y-axis in log-scale
 #' @param width plot width in inches
 #' @param height plot height in inches
+#' @param add additional values to plot over time with column "Category" matching one of the categories to plot
 #' @param ... Other inputs to `par()`
 #' @inheritParams plot_maps
 #'
@@ -29,7 +30,7 @@
 plot_biomass_index <-
 function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
-  create_covariance_table=FALSE, ... ){
+  create_covariance_table=FALSE, add = NULL, ... ){
 
   require(ggplot2)
 
@@ -254,7 +255,7 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
         byStrat <- lapply(1:TmbData$n_l, function(y){
           est <- Array_ctl[x,Years2Include,y,1]
           ybounds = (Array_ctl[x,Years2Include,y,'Estimate']%o%c(1,1))*exp(log_Array_ctl[x,Years2Include,y,'Std. Error']%o%c(-interval_width,interval_width))
-          df <- data.frame("Year"=names(est), "Category"=category_names[x], "Stratum"=strata_names[y], "Estimate"=est, "Ybound_low"=ybounds[,1], "Ybound_high"=ybounds[,2])
+          df <- data.frame("Year"=fit$year_labels, "Category"=category_names[x], "Stratum"=strata_names[y], "Estimate"=est, "Ybound_low"=ybounds[,1], "Ybound_high"=ybounds[,2])
           return(df)
         })
         byStrat <- do.call(rbind, byStrat)
@@ -262,26 +263,29 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
       byCat <- do.call(rbind, byCat)
       byCat$Year <- as.numeric(byCat$Year)
 
-      Ylim = lapply(1:TmbData$n_c, function(x){
-        c(0, max(Array_ctl[x,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Array_ctl[x,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)),na.rm=TRUE)*1.05 )
-      })
-      blank_info <- data.frame(Category = c(sapply(1:TmbData$n_c, function(x) rep(category_names[x], 2))), x = 0, y = c(sapply(1:TmbData$n_c, function(x) Ylim[[x]])))
+      # Ylim = lapply(1:TmbData$n_c, function(x){
+      #   c(0, max(Array_ctl[x,Years2Include,,'Estimate']%o%c(1,1) * exp(log_Array_ctl[x,Years2Include,,'Std. Error']%o%c(-interval_width,interval_width)),na.rm=TRUE)*1.05 )
+      # })
+      # blank_info <- data.frame(Category = c(sapply(1:TmbData$n_c, function(x) rep(category_names[x], 2))), x = 0, y = c(sapply(1:TmbData$n_c, function(x) Ylim[[x]])))
       
       name <- switch(Plot_suffix[plotI], "Biomass"="Abundance (metric tonnes)", "Count"="Abundance (individuals)", "Encounter"="Abundance index", "Bratio"="Biomass ratio")
       byCat$Stratum <- factor(byCat$Stratum)
-      p <- ggplot(byCat) +
+      p <- ggplot(byCat)
+      if(all(is.null(add))==FALSE) p = p + geom_line(data = add, aes(x = Year, y = value)) + geom_point(data = add, aes(x = Year, y = value), pch=19)
+      p <- p + 
         geom_segment(aes(x = Year, y = Ybound_low, xend = Year, yend = Ybound_high, color=Stratum)) +
         geom_line(aes(x = Year, y=Estimate, color = Stratum)) +
         geom_point(aes(x = Year, y=Estimate, color = Stratum), cex=2) +
-        geom_blank(data=blank_info, aes(x=x, y=y)) +
+        # geom_blank(data=blank_info, aes(x=x, y=y)) +
         facet_grid(Category~., scales="free_y") +
-        scale_x_continuous(breaks = seq(min(byCat$Year),max(byCat$Year),by=5), labels=Year_Set[Years2Include][seq(min(byCat$Year),max(byCat$Year),by=5)]) +
+        # scale_x_continuous(breaks = seq(min(byCat$Year),max(byCat$Year),by=5), labels=Year_Set[Years2Include][seq(min(byCat$Year),max(byCat$Year),by=5)]) +
         expand_limits(y = 0) +
-        scale_y_continuous(expand = c(0,0)) +
+        # scale_y_continuous(expand = c(0,0)) +
         # coord_cartesian(ylim = Ylim) +
         scale_color_brewer(palette = "Set1") +
         ylab(name) +
         mytheme()
+
       if(length(unique(strata_names))==1) p <- p + guides(color = FALSE)
       if(!is.null(DirName)) ggsave(paste0(DirName,"/",PlotName,"-",Plot_suffix[plotI],".png"), p)
       if(is.null(DirName)){

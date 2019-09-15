@@ -34,6 +34,7 @@
 #' @param covar_names character vector specifying covariate names for labeling figures
 #' @param legend Boolean whether to plot legend or not
 #' @param textmargin option to include y-axis text
+#' @param option to add arrows between network nodes
 #' @param ... arguments passed to \code{par}
 #'
 #' @return Mat_xt a matrix (rows: modeled knots; column: modeled year) for plotted output of last element of \code{plot_set}
@@ -45,7 +46,7 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
          TmbData=NULL, spatial_list=NULL, Panel="Category",
          DirName=NULL, PlotName=NULL,
          category_names=NULL, covar_names=NULL,
-         legend=TRUE, textmargin=NULL, ...){
+         legend=TRUE, textmargin=NULL, arrows=FALSE,...){
 
   # local functions
   logsum = function(vec){ max(vec) + log(sum(exp(vec-max(vec)))) }
@@ -325,9 +326,27 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
             xct <- do.call(rbind, xct)
           } else xct <- data.frame('value'=Mat_xt, 'year'=year_labels, spatial_list$loc_g, "category"=category_names[1])
 
-          p <- ggplot(xct) +
+          if(all(is.null(Xlim))) Xlim = c(min(xct$E_km),max(xct$E_km))
+          if(all(is.null(Ylim))) Ylim = c(min(xct$N_km),max(xct$N_km))
+          p <- ggplot(xct)
+          if(arrows == TRUE){
+            Network_sz_EN <- data.frame('parent_s'=fit$data_list$parent_s, 'child_s'=fit$data_list$child_s, fit$spatial_list$loc_g)
+            l2 <- lapply(1:nrow(Network_sz_EN), function(x){
+              parent <- Network_sz_EN$parent_s[x]
+              find <- Network_sz_EN %>% filter(child_s == parent)
+              if(nrow(find)>0) out <- cbind.data.frame(Network_sz_EN[x,], 'E2'=find$E_km, 'N2'=find$N_km)
+              if(nrow(find)==0) out <- cbind.data.frame(Network_sz_EN[x,], 'E2'=NA, 'N2'=NA)
+              # if(nrow(find)>0) out <- cbind.data.frame(Network_sz_EN[x,], 'long2'=find$long, 'lat2'=find$lat)
+              # if(nrow(find)==0) out <- cbind.data.frame(Network_sz_EN[x,], 'long2'=NA, 'lat2'=NA)
+              return(out)
+            })
+            l2 <- do.call(rbind, l2)
+            p <- p + geom_segment(data=l2, aes(x = E_km,y = N_km, xend = E2, yend = N2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
+          }
+          p <- p +
               geom_point(aes(x = E_km, y = N_km, color = value), ...) +
               scale_color_distiller(palette = "Spectral") +
+              coord_cartesian(xlim = Xlim, ylim = Ylim) +
               scale_x_continuous(breaks=quantile(xct$E_km, prob=c(0.1,0.5,0.9)), labels=round(quantile(xct$E_km, prob=c(0.1,0.5,0.9)),0)) +
               # guides(color=guide_legend(title=plot_codes[plot_num])) +
               facet_wrap(~year) + 

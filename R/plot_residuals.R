@@ -4,7 +4,7 @@
 #' @description
 #' \code{plot_residuals} shows average Pearson residual for every knot for encounter probability and positive catch rate components
 #'
-#' @param type density, pred2 (second linear predictor), pred1 (first linear predictor)
+#' @param ObsModel
 #' @param fit model fit from fit_model
 #' @param Data input data in format of Data_Geostat
 #' @param Network_sz_LL stream network info
@@ -17,7 +17,7 @@
 #' }
 
 #' @export
-plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath = NULL ){
+plot_residuals = function( ObsModel, fit, Data, Network_sz_LL, category_names, FilePath = NULL ){
 
   ##################
   # Basic inputs
@@ -29,17 +29,19 @@ plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath = 
   D_i <- Report$R1_i*Report$R2_i
   PR1_i <- PR2_i <- rep(NA, length(D_i))
   for(i in 1:length(D_i)){
+    
     ## bernoulli for presence
-    mui <- Report$R1_i[i]
-    obs <- as.numeric(Data_Geostat$Catch_KG[i]>0)
-    PR1_i[i] <- (obs-mui)/sqrt(mui*(1-mui)/1)
-    ## log-normal for catch rate; NA for 0 observations
+      mui <- Report$R1_i[i]
+      obs <- as.numeric(Data_Geostat$Catch_KG[i]>0)
+      PR1_i[i] <- (obs-mui)/sqrt(mui*(1-mui)/1)
+    
+    ## NA for 0 observations
     obs <- Data_Geostat$Catch_KG[i]
     if(obs>0){
       ## make sure to use the right variance as this depends on gear type
       # gr <- as.numeric(Data_Geostat$Gear[i])
-      # PR2_i[i] <- (log(obs)-log(Report$R2_i[i])+Report$SigmaM[1]^2/2)/Report$SigmaM[1]
-      PR2_i[i] <- (log(obs)-log(Report$R2_i[i]))/log(Report$R2_i[i])
+      if(ObsModel == 1) PR2_i[i] <- (log(obs)-log(Report$R2_i[i])+Report$SigmaM[1]^2/2)/Report$SigmaM[1]
+      if(ObsModel %in% c(7,11)) PR2_i[i] <- (log(obs)-log(Report$R2_i[i]))/log(Report$R2_i[i])
     }
   }
   df <- cbind(Data_Geostat, PR1=PR1_i, PR2=PR2_i, positive=ifelse(Data_Geostat$Catch_KG>0,1,0))
@@ -72,7 +74,9 @@ plot_residuals = function( fit, Data, Network_sz_LL, category_names, FilePath = 
 
 sub <- subset(df, positive==1)
 sresid <- sum(sub$PR2, na.rm=TRUE )
-if(is.null(FilePath)==FALSE) write.csv(as.numeric(sresid), file=file.path(FilePath, "Sum_catchrate_resid.csv"))
+sresid2 <- sum(sub$PR1, na.rm=TRUE)
+sdf <- data.frame("P1" = sum(sub$PR1, na.rm=TRUE), "P2"=sum(sub$PR2, na.rm=TRUE))
+if(is.null(FilePath)==FALSE) write.csv(sdf, file=file.path(FilePath, "Sum_resid.csv"))
 
 
 # if(type == "density"){
