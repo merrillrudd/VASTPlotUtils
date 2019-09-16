@@ -385,10 +385,28 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
             })
             xct <- do.call(rbind, xct)
           } else xct <- data.frame('value'=Mat_xc, 'year'=year_labels[years_to_plot[tI]], spatial_list$loc_g, "category"='total')
+          if(all(is.null(Xlim))) Xlim = c(min(xct$E_km),max(xct$E_km))
+          if(all(is.null(Ylim))) Ylim = c(min(xct$N_km),max(xct$N_km))
+          p <- ggplot(xct)
+          if(arrows == TRUE){
+            Network_sz_EN <- data.frame('parent_s'=fit$data_list$parent_s, 'child_s'=fit$data_list$child_s, fit$spatial_list$loc_g)
+            l2 <- lapply(1:nrow(Network_sz_EN), function(x){
+              parent <- Network_sz_EN$parent_s[x]
+              find <- Network_sz_EN %>% filter(child_s == parent)
+              if(nrow(find)>0) out <- cbind.data.frame(Network_sz_EN[x,], 'E2'=find$E_km, 'N2'=find$N_km)
+              if(nrow(find)==0) out <- cbind.data.frame(Network_sz_EN[x,], 'E2'=NA, 'N2'=NA)
+              # if(nrow(find)>0) out <- cbind.data.frame(Network_sz_EN[x,], 'long2'=find$long, 'lat2'=find$lat)
+              # if(nrow(find)==0) out <- cbind.data.frame(Network_sz_EN[x,], 'long2'=NA, 'lat2'=NA)
+              return(out)
+            })
+            l2 <- do.call(rbind, l2)
+            p <- p + geom_segment(data=l2, aes(x = E_km,y = N_km, xend = E2, yend = N2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
+          }
 
-          p <- ggplot(xct) +
+          p <- p +
               geom_point(aes(x = E_km, y = N_km, color = value), cex=2) +
               scale_color_distiller(palette = "Spectral") +
+              coord_cartesian(xlim = Xlim, ylim = Ylim) +
               scale_x_continuous(breaks=quantile(xct$E_km, prob=c(0.1,0.5,0.9)), labels=round(quantile(xct$E_km, prob=c(0.1,0.5,0.9)),0)) +
               # guides(color=guide_legend(title=plot_codes[plot_num])) +
               facet_wrap(~category) + 
