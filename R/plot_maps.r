@@ -367,10 +367,10 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
     }
     # Plot for each year
     if( tolower(Panel)=="year" ){
-      Nplot = length(years_to_plot)
+      Nplot = length(year_labels)
       for( tI in 1:Nplot){
-        if(length(dim(Array_xct))==2) Mat_xc = Array_xct[,years_to_plot[tI],drop=TRUE]
-        if(length(dim(Array_xct))==3) Mat_xc = Array_xct[,,years_to_plot[tI],drop=TRUE]
+        if(length(dim(Array_xct))==2) Mat_xc = Array_xct[,year_labels[tI],drop=TRUE]
+        if(length(dim(Array_xct))==3) Mat_xc = Array_xct[,,year_labels[tI],drop=TRUE]
         if(is.null(dim(Mat_xc)) & is.vector(Mat_xc)){
           Ncategories = 1
         } else { Ncategories = dim(Mat_xc)[2] }
@@ -380,11 +380,11 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
           n_c <- dim(Mat_xc)[2]
           if(n_c > 1) {
             xct <- lapply(1:n_c, function(x){
-              out <- data.frame('value'=Mat_xc[,x], 'year'=years_to_plot[tI], spatial_list$loc_g, 'category'=category_names[x])
+              out <- data.frame('value'=Mat_xc[,x], 'year'=year_labels[tI], spatial_list$loc_g, 'category'=category_names[x])
               return(out)
             })
             xct <- do.call(rbind, xct)
-          } else xct <- data.frame('value'=Mat_xc, 'year'=years_to_plot[tI], spatial_list$loc_g, "category"='total')
+          } else xct <- data.frame('value'=Mat_xc, 'year'=year_labels[tI], spatial_list$loc_g, "category"='total')
 
           p <- ggplot(xct) +
               geom_point(aes(x = E_km, y = N_km, color = value), cex=2) +
