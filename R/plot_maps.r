@@ -28,6 +28,7 @@
 #' @param Panel Whether to plot years for a given category (\code{Panel="Category"}) or categories for a given year ((\code{Panel="Year"})  in each panel figure
 #' @param Ylim ylimits for each panel
 #' @param Xlim xlimits for each panel
+#' @param Zlim value scale limits
 #' @param DirName Directory (absolute path)
 #' @param PlotName plot names are automatically generated but option to add a modifier
 #' @param category_names character vector specifying names for different categories (only used for R package \code{VAST})
@@ -35,6 +36,7 @@
 #' @param legend Boolean whether to plot legend or not
 #' @param textmargin option to include y-axis text
 #' @param option to add arrows between network nodes
+#' @param cex size of points for map
 #' @param ... arguments passed to \code{par}
 #'
 #' @return Mat_xt a matrix (rows: modeled knots; column: modeled year) for plotted output of last element of \code{plot_set}
@@ -42,11 +44,11 @@
 
 #' @export
 plot_maps <-
-function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
+function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL, Zlim = NULL, 
          TmbData=NULL, spatial_list=NULL, Panel="Category",
          DirName=NULL, PlotName=NULL,
          category_names=NULL, covar_names=NULL,
-         legend=TRUE, textmargin=NULL, arrows=FALSE,...){
+         legend=TRUE, textmargin=NULL, arrows=FALSE, cex=0.5,...){
 
   # local functions
   logsum = function(vec){ max(vec) + log(sum(exp(vec-max(vec)))) }
@@ -127,6 +129,7 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
       # if("D_gcy"%in%names(Report)) stop("`plot_maps` not implemented for requested plot_num")
       if(any(c("dhat_ktp","dpred_ktp")%in%names(Report))) stop("Not implemented for SpatialVAM")
       message( "plot_num=1 doesn't work well when using ObsModel[2]==1" )
+      if(is.null(Zlim)) Zlim <- c(0,1)
     }
     if(plot_num==2){
       # Positive values ("Pos")
@@ -286,25 +289,8 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
         }
     }
 
-      require(ggplot2)
+      # require(ggplot2)
       if(all(is.null(spatial_list))) stop("add spatial_list (output from FishStatsUtils::make_spatial_info) to use ggplot2 plots.")
-
-            mytheme <- function (base_size = 14, base_family = "") 
-            {
-                theme_grey(base_size = base_size, base_family = base_family) %+replace%
-                theme(axis.title.x = element_text(margin = margin(10,0,0,0)),
-                      #axis.title.x = element_text(vjust = -1.5),
-                      #axis.title.y = element_text(margin = margin(0,20,0,0)),
-                      #axis.title.y = element_text(vjust = -0.1),
-                      axis.text = element_text(size = rel(0.8)),
-                      axis.ticks = element_line(colour = "black"), 
-                      legend.key = element_rect(colour = "grey80"),
-                      panel.background = element_rect(fill = "white", colour = NA),
-                      panel.border = element_rect(fill = NA, colour = "grey50"),
-                      panel.grid.major = element_line(colour = "grey90", size = 0.2),
-                      panel.grid.minor = element_line(colour = "grey98", size = 0.5),
-                      strip.background = element_rect(fill = "grey80", colour = "grey50", size = 0.2))
-            }
 
 
     # Plot for each category
@@ -343,9 +329,10 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
             l2 <- do.call(rbind, l2)
             p <- p + geom_segment(data=l2, aes(x = E_km,y = N_km, xend = E2, yend = N2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
           }
+          if(is.null(Zlim)) Zlim = quantile(xct$value, prob = c(0,1), na.rm=TRUE)
           p <- p +
-              geom_point(aes(x = E_km, y = N_km, color = value), ...) +
-              scale_color_distiller(palette = "Spectral") +
+              geom_point(aes(x = E_km, y = N_km, color = value), cex = cex) +
+              scale_color_distiller(palette = "Spectral", limits = Zlim) +
               coord_cartesian(xlim = Xlim, ylim = Ylim) +
               scale_x_continuous(breaks=quantile(xct$E_km, prob=c(0.1,0.5,0.9)), labels=round(quantile(xct$E_km, prob=c(0.1,0.5,0.9)),0)) +
               # guides(color=guide_legend(title=plot_codes[plot_num])) +
@@ -402,10 +389,10 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL,
             l2 <- do.call(rbind, l2)
             p <- p + geom_segment(data=l2, aes(x = E_km,y = N_km, xend = E2, yend = N2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
           }
-
+          if(is.null(Zlim)) Zlim = quantile(xct$value, prob = c(0,1), na.rm=TRUE)
           p <- p +
-              geom_point(aes(x = E_km, y = N_km, color = value), cex=2) +
-              scale_color_distiller(palette = "Spectral") +
+              geom_point(aes(x = E_km, y = N_km, color = value), cex=cex) +
+              scale_color_distiller(palette = "Spectral", limits = Zlim) +
               coord_cartesian(xlim = Xlim, ylim = Ylim) +
               scale_x_continuous(breaks=quantile(xct$E_km, prob=c(0.1,0.5,0.9)), labels=round(quantile(xct$E_km, prob=c(0.1,0.5,0.9)),0)) +
               # guides(color=guide_legend(title=plot_codes[plot_num])) +
