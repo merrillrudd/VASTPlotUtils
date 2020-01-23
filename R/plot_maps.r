@@ -119,6 +119,7 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL, Zlim = NULL,
   # Loop through plots
   for(plot_num in plot_set){
 
+    inp_Zlim <- Zlim
     # Extract matrix to plot
     if(plot_num==1){
       # Presence/absence ("Pres")
@@ -129,7 +130,7 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL, Zlim = NULL,
       # if("D_gcy"%in%names(Report)) stop("`plot_maps` not implemented for requested plot_num")
       if(any(c("dhat_ktp","dpred_ktp")%in%names(Report))) stop("Not implemented for SpatialVAM")
       message( "plot_num=1 doesn't work well when using ObsModel[2]==1" )
-      if(is.null(Zlim)) Zlim <- c(0,1)
+      if(is.null(Zlim)) inp_Zlim <- c(0,1)
     }
     if(plot_num==2){
       # Positive values ("Pos")
@@ -329,10 +330,10 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL, Zlim = NULL,
             l2 <- do.call(rbind, l2)
             p <- p + geom_segment(data=l2, aes(x = E_km,y = N_km, xend = E2, yend = N2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
           }
-          if(is.null(Zlim)) Zlim = quantile(xct$value, prob = c(0,1), na.rm=TRUE)
+          if(is.null(Zlim)) inp_Zlim = quantile(xct$value, prob = c(0,1), na.rm=TRUE)
           p <- p +
               geom_point(aes(x = E_km, y = N_km, color = value), cex = cex) +
-              scale_color_distiller(palette = "Spectral", limits = Zlim) +
+              scale_color_distiller(palette = "Spectral", limits = inp_Zlim) +
               coord_cartesian(xlim = Xlim, ylim = Ylim) +
               scale_x_continuous(breaks=quantile(xct$E_km, prob=c(0.1,0.5,0.9)), labels=round(quantile(xct$E_km, prob=c(0.1,0.5,0.9)),0)) +
               # guides(color=guide_legend(title=plot_codes[plot_num])) +
@@ -389,10 +390,10 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL, Zlim = NULL,
             l2 <- do.call(rbind, l2)
             p <- p + geom_segment(data=l2, aes(x = E_km,y = N_km, xend = E2, yend = N2), arrow=arrow(length=unit(0.2,"cm")), col="gray")
           }
-          if(is.null(Zlim)) Zlim = quantile(xct$value, prob = c(0,1), na.rm=TRUE)
+          if(is.null(Zlim)) inp_Zlim = quantile(xct$value, prob = c(0,1), na.rm=TRUE)
           p <- p +
               geom_point(aes(x = E_km, y = N_km, color = value), cex=cex) +
-              scale_color_distiller(palette = "Spectral", limits = Zlim) +
+              scale_color_distiller(palette = "Spectral", limits = inp_Zlim) +
               coord_cartesian(xlim = Xlim, ylim = Ylim) +
               scale_x_continuous(breaks=quantile(xct$E_km, prob=c(0.1,0.5,0.9)), labels=round(quantile(xct$E_km, prob=c(0.1,0.5,0.9)),0)) +
               # guides(color=guide_legend(title=plot_codes[plot_num])) +
