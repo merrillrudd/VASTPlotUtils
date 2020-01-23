@@ -130,7 +130,7 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL, Zlim = NULL,
       # if("D_gcy"%in%names(Report)) stop("`plot_maps` not implemented for requested plot_num")
       if(any(c("dhat_ktp","dpred_ktp")%in%names(Report))) stop("Not implemented for SpatialVAM")
       message( "plot_num=1 doesn't work well when using ObsModel[2]==1" )
-      if(is.null(Zlim)) inp_Zlim <- c(0,1)
+      # if(is.null(Zlim)) inp_Zlim <- c(0,1)
     }
     if(plot_num==2){
       # Positive values ("Pos")
