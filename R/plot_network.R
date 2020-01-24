@@ -116,7 +116,8 @@ plot_network <- function(Network_sz_LL, Data=NULL, plot_type = 0, byYear = FALSE
       if(all(is.null(obs_color))==FALSE){
         if(length(obs_color)!=length(unique(Data$Category))) stop("input observation colors must match number of categories in data to plot")
         bb <- bb + 
-          geom_point(data = Data, aes(x = Lon, y = Lat, color=Category), cex=1.8, alpha=0.6, fill=obs_color)
+          geom_point(data = Data, aes(x = Lon, y = Lat, color=Category), cex=1.8, alpha=0.6) +
+          scale_color_manual(values = obs_color)
       }      
     }
     if(byValue==TRUE){
@@ -136,7 +137,7 @@ plot_network <- function(Network_sz_LL, Data=NULL, plot_type = 0, byYear = FALSE
         if(plot_type == 0) bb <- bb +  geom_point(data = Data, aes(x = Lon, y = Lat, color=Category, size=Catch_KG))
         if(plot_type == 1) bb <- bb +  geom_point(data = Data, aes(x = Lon, y = Lat, color=PR1>0, size=abs(PR1))) + scale_size("Pearson residual", range = c(0,3))
         if(plot_type == 2) bb <- bb +  geom_point(data = Data %>% filter(positive == 1), aes(x = Lon, y = Lat, color=PR2>0, size=abs(PR2))) + scale_size("Pearson residual", range = c(0,3))
-       
+        bb <- bb + scale_color_manual(values = obs_color)
       }        
     }
 
