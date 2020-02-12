@@ -109,7 +109,7 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
 
   # Extract index (using bias-correctino if available and requested)
   if( ParName %in% c("Index_tl","Index_ctl","Index_cyl")){
-    Index_ctl = log_Index_ctl = array( NA, dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(category_names,Year_Set,strata_names,c('Estimate','Std. Error')) )
+    Index_ctl = log_Index_ctl = array( NA, dim=c(unlist(TmbData[c('n_c','n_t','n_l')]),2), dimnames=list(category_names,fit$year_labels,strata_names,c('Estimate','Std. Error')) )
     # Index
     if( use_biascorr==TRUE && "unbiased"%in%names(Sdreport) ){
       Index_ctl[] = SD[which(rownames(SD)==ParName),c('Est. (bias.correct)','Std. Error')]
@@ -284,7 +284,7 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   # Write to file
   Table = NULL
   for( cI in 1:TmbData$n_c ){
-    Tmp = data.frame( "Year"=Year_Set, "Unit"=1, "Fleet"=rep(strata_names,each=TmbData$n_t), "Estimate_metric_tons"=as.vector(Index_ctl[cI,,,'Estimate']), "SD_log"=as.vector(log_Index_ctl[cI,,,'Std. Error']), "SD_mt"=as.vector(Index_ctl[cI,,,'Std. Error']) )
+    Tmp = data.frame( "Year"=fit$year_labels, "Unit"=1, "Fleet"=rep(strata_names,each=TmbData$n_t), "Estimate_metric_tons"=as.vector(Index_ctl[cI,,,'Estimate']), "SD_log"=as.vector(log_Index_ctl[cI,,,'Std. Error']), "SD_mt"=as.vector(Index_ctl[cI,,,'Std. Error']) )
     if( TmbData$n_c>1 ) Tmp = cbind( "Category"=category_names[cI], Tmp)
     Table = rbind( Table, Tmp )
   }
