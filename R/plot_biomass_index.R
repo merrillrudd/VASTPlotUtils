@@ -74,8 +74,8 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   }
 
   # Fill in missing
-  Year_Set = fit$year_labels
   Years2Include = fit$years_to_plot
+  Year_Set = fit$year_labels[Years2Include]
   if( is.null(strata_names) ) strata_names = 1:TmbData$n_l
   if( is.null(category_names) ) category_names = 1:TmbData$n_c
 
@@ -216,25 +216,10 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
     log_Index_ctl[,,,'Std. Error'] = ifelse(Num_ct%o%rep(1,TmbData$n_l)==0, NA, log_Index_ctl[,,,'Std. Error'])
   }
 
-    mytheme <- function (base_size = 14, base_family = "") 
-    {
-    theme_grey(base_size = base_size, base_family = base_family) %+replace%
-    theme(axis.title.x = element_text(margin = margin(10,0,0,0)),
-          #axis.title.x = element_text(vjust = -1.5),
-          #axis.title.y = element_text(margin = margin(0,20,0,0)),
-          #axis.title.y = element_text(vjust = -0.1),
-          axis.text = element_text(size = rel(0.8)),
-          axis.ticks = element_line(colour = "black"), 
-          legend.key = element_rect(colour = "grey80"),
-          panel.background = element_rect(fill = "white", colour = NA),
-          panel.border = element_rect(fill = NA, colour = "grey50"),
-          panel.grid.major = element_line(colour = "grey90", size = 0.2),
-          panel.grid.minor = element_line(colour = "grey98", size = 0.5),
-          strip.background = element_rect(fill = "grey80", colour = "grey50", size = 0.2))
-    }     
+
 
   # Plot biomass and Bratio
-  if(all(is.integer(TmbData$b_i))){
+  if(identical(TmbData$b_i, round(TmbData$b_i,0))){
     Plot_suffix = "Count"
   } else{
     if(all(round(TmbData$b_i,0) %in% c(0,1))){
@@ -255,7 +240,7 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
         byStrat <- lapply(1:TmbData$n_l, function(y){
           est <- Array_ctl[x,Years2Include,y,1]
           ybounds = (Array_ctl[x,Years2Include,y,'Estimate']%o%c(1,1))*exp(log_Array_ctl[x,Years2Include,y,'Std. Error']%o%c(-interval_width,interval_width))
-          df <- data.frame("Year"=fit$year_labels, "Category"=category_names[x], "Stratum"=strata_names[y], "Estimate"=est, "Ybound_low"=ybounds[,1], "Ybound_high"=ybounds[,2])
+          df <- data.frame("Year"=Year_Set, "Category"=category_names[x], "Stratum"=strata_names[y], "Estimate"=est, "Ybound_low"=ybounds[,1], "Ybound_high"=ybounds[,2])
           return(df)
         })
         byStrat <- do.call(rbind, byStrat)
@@ -284,7 +269,7 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
         # coord_cartesian(ylim = Ylim) +
         scale_color_brewer(palette = "Set1") +
         ylab(name) +
-        mytheme()
+        theme_bw()
 
       if(length(unique(strata_names))==1) p <- p + guides(color = FALSE)
       if(!is.null(DirName)) ggsave(paste0(DirName,"/",PlotName,"-",Plot_suffix[plotI],".png"), p)
