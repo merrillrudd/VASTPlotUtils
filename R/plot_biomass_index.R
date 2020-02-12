@@ -17,6 +17,7 @@
 #' @param width plot width in inches
 #' @param height plot height in inches
 #' @param add additional values to plot over time with column "Category" matching one of the categories to plot
+#' @param Plot_suffix input either Count, Encounter, or Biomass, or let the function identify based on some rules
 #' @param ... Other inputs to `par()`
 #' @inheritParams plot_maps
 #'
@@ -30,7 +31,7 @@
 plot_biomass_index <-
 function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   strata_names=NULL, category_names=NULL, use_biascorr=TRUE, plot_legend=TRUE, total_area_km2=NULL, plot_log=FALSE, width=4, height=4,
-  create_covariance_table=FALSE, add = NULL, ... ){
+  create_covariance_table=FALSE, add = NULL, Plot_suffix = NULL, ... ){
 
   require(ggplot2)
 
@@ -219,13 +220,15 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
 
 
   # Plot biomass and Bratio
-  if(identical(TmbData$b_i, round(TmbData$b_i,0))){
-    Plot_suffix = "Count"
-  } else{
-    if(all(round(TmbData$b_i,0) %in% c(0,1))){
-      Plot_suffix = "Encounter"
-    } else { Plot_suffix = "Biomass"}
-  } 
+  if(is.null(Plot_suffix)){
+    if(identical(TmbData$b_i, round(TmbData$b_i,0))){
+      Plot_suffix = "Count"
+    } else{
+      if(all(round(TmbData$b_i,0) %in% c(0,1))){
+        Plot_suffix = "Encounter"
+      } else { Plot_suffix = "Biomass"}
+    } 
+  }
   
   if( !is.null(Bratio_ctl) ) Plot_suffix = c( Plot_suffix, "Bratio" )
 
