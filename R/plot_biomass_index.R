@@ -307,7 +307,7 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   write.csv( Table, file=paste0(DirName,"/Table_for_SS3.csv"), row.names=FALSE)
 
   # Return stuff
-  Return = list( "Table"=Table, "log_Index_ctl"=log_Index_ctl, "Index_ctl"=Index_ctl, "Ylim"=Ylim )
+  Return = list( "Table"=Table, "log_Index_ctl"=log_Index_ctl, "Index_ctl"=Index_ctl)#, "Ylim"=Ylim )
 
   # Extract and save covariance
   if( "cov"%in%names(Sdreport) & create_covariance_table==TRUE ){
