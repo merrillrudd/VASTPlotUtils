@@ -66,7 +66,7 @@ plot_residuals = function( ObsModel, fit, Data, Network_sz_LL, category_names, F
     ggtitle("First component") + 
     theme_bw(base_size = 14)
   if(is.null(FilePath)==FALSE){
-    ggsave(file.path(FilePath, "Pearson_resid_firstcomponent.png"), p1, width = 7, height = 5)
+    ggsave(file.path(FilePath, "Pearson_resid_firstcomponent.png"), p1, width = 12, height = 10)
   } else {
     print(p1)
   }
@@ -82,7 +82,7 @@ plot_residuals = function( ObsModel, fit, Data, Network_sz_LL, category_names, F
     ggtitle("Second component") + 
     theme_bw(base_size = 14)
   if(is.null(FilePath)==FALSE){
-    ggsave(file.path(FilePath, "Pearson_resid_secondcomponent.png"), p2, width = 7, height = 5)
+    ggsave(file.path(FilePath, "Pearson_resid_secondcomponent.png"), p2, width = 12, height = 10)
   } else {
     print(p2)
   }
