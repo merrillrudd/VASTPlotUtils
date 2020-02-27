@@ -54,23 +54,55 @@ plot_residuals = function( ObsModel, fit, Data, Network_sz_LL, category_names, F
     # g <- ggplot(subset(df, positive==1), aes(Lon, Lat, size=abs(PR2), color=PR2>0))+
     #   geom_point(alpha=.25) + facet_wrap('Year') + xlim(xlim) + ylim(ylim)+
     #   scale_size('Pearson Resid', range=c(0,3))  + theme_bw()
-  g <- plot_network(Network_sz_LL = Network_sz_LL, Data = df, plot_type = 2, byYear=TRUE, byValue=TRUE)
-  if(is.null(FilePath)==FALSE) ggsave(file.path(FilePath, 'Pearson_resid_catchrate.png'), plot=g,
-           width=7, height=5)
-  if(is.null(FilePath)){
-    dev.new()
-    print(g)
+  # g <- plot_network(Network_sz_LL = Network_sz_LL, Data = df, plot_type = 2, byYear=TRUE, byValue=TRUE)
+  p1 <- ggplot(df %>% filter(positive == 1)) +
+    geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), col = "gray", alpha = 0.6) +
+    geom_point(aes(x = Lon, y = Lat, col = PR1>0, size = abs(PR1)), alpha = 0.7) +
+    facet_wrap(Year~Category) +
+    xlim(xlim) + ylim(ylim) +
+    scale_color_brewer(palette = "Set1") +
+    scale_size("Pearson Residual", range = c(0,max(df$PR1, na.rm = TRUE))) +
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("First component") + 
+    theme_bw(base_size = 14)
+  if(is.null(FilePath)==FALSE){
+    ggsave(file.path(FilePath, "Pearson_resid_firstcomponent.png"), p1, width = 7, height = 5)
+  } else {
+    print(p1)
   }
-    # g <- ggplot(subset(df), aes(Lon, Lat, size=abs(PR1), color=PR1>0))+
-    #   geom_point(alpha=.25) + facet_wrap('Year') + xlim(xlim) + ylim(ylim)+
-    #   scale_size('Pearson Resid', range=c(0,3))  + theme_bw()
-  g <- plot_network(Network_sz_LL = Network_sz_LL, Data=df, plot_type=1, byYear=TRUE, byValue = TRUE)
-  if(is.null(FilePath)==FALSE)  ggsave(file.path(FilePath, 'Pearson_resid_encounter.png'), plot=g,
-           width=7, height=5)
-  if(is.null(FilePath)){
-    dev.new()
-    print(g)
+
+  p2 <- ggplot(df %>% filter(positive == 1)) +
+    geom_point(data = Network_sz_LL, aes(x = Lon, y = Lat), col = "gray", alpha = 0.6) +
+    geom_point(aes(x = Lon, y = Lat, col = PR2>0, size = abs(PR2)), alpha = 0.7) +
+    facet_wrap(Year~Category) +
+    xlim(xlim) + ylim(ylim) +
+    scale_color_brewer(palette = "Set1") +
+    scale_size("Pearson Residual", range = c(0,max(df$PR2, na.rm = TRUE))) +
+    xlab("Longitude") + ylab("Latitude") +
+    ggtitle("Second component") + 
+    theme_bw(base_size = 14)
+  if(is.null(FilePath)==FALSE){
+    ggsave(file.path(FilePath, "Pearson_resid_secondcomponent.png"), p2, width = 7, height = 5)
+  } else {
+    print(p2)
   }
+
+  # if(is.null(FilePath)==FALSE) ggsave(file.path(FilePath, 'Pearson_resid_catchrate.png'), plot=g,
+  #          width=7, height=5)
+  # if(is.null(FilePath)){
+  #   dev.new()
+  #   print(g)
+  # }
+  #   # g <- ggplot(subset(df), aes(Lon, Lat, size=abs(PR1), color=PR1>0))+
+  #   #   geom_point(alpha=.25) + facet_wrap('Year') + xlim(xlim) + ylim(ylim)+
+  #   #   scale_size('Pearson Resid', range=c(0,3))  + theme_bw()
+  # g <- plot_network(Network_sz_LL = Network_sz_LL, Data=df, plot_type=1, byYear=TRUE, byValue = TRUE)
+  # if(is.null(FilePath)==FALSE)  ggsave(file.path(FilePath, 'Pearson_resid_encounter.png'), plot=g,
+  #          width=7, height=5)
+  # if(is.null(FilePath)){
+  #   dev.new()
+  #   print(g)
+  # }
 
 sub <- subset(df, positive==1)
 sresid <- sum(sub$PR2, na.rm=TRUE )

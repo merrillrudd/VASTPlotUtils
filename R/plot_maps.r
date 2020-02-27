@@ -161,10 +161,15 @@ function(plot_set=3, fit, Sdreport=NULL, Xlim=NULL, Ylim=NULL, Zlim = NULL,
     }
     if(plot_num==5){
       # Density rescaled ("Dens_Rescaled")
-      if("D_xt"%in%names(Report)) Array_xct = log(Report$D_xt+quantile(Report$D_xt,0.25))
-      if("D_xct"%in%names(Report)) Array_xct = log(Report$D_xct+quantile(Report$D_xct,0.25))
-      if("D_xcy"%in%names(Report)) Array_xct = log(Report$D_xcy+quantile(Report$D_xcy,0.25))
-      if("D_gcy"%in%names(Report)) Array_xct = log(Report$D_gcy+quantile(Report$D_gcy,0.25))
+      # if("D_xt"%in%names(Report)) Array_xct = log(Report$D_xt+quantile(Report$D_xt,0.25))
+      # if("D_xct"%in%names(Report)) Array_xct = log(Report$D_xct+quantile(Report$D_xct,0.25))
+      # if("D_xcy"%in%names(Report)) Array_xct = log(Report$D_xcy+quantile(Report$D_xcy,0.25))
+      # if("D_gcy"%in%names(Report)) Array_xct = log(Report$D_gcy+quantile(Report$D_gcy,0.25))
+      if("D_xt"%in%names(Report)) Array_xct = Report$D_xt
+      if("D_xct"%in%names(Report)) Array_xct = Report$D_xct
+      if("D_xcy"%in%names(Report)) Array_xct = Report$D_xcy
+      if("D_gcy"%in%names(Report)) Array_xct = Report$D_gcy
+
       # if("D_gcy"%in%names(Report)) stop("`plot_maps` not implemented for requested plot_num")
       if(any(c("dhat_ktp","dpred_ktp")%in%names(Report)))  stop("Not implemented for SpatialVAM")
     }

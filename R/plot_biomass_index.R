@@ -316,5 +316,5 @@ function( fit, Sdreport, DirName=NULL, PlotName="Index", interval_width=1,
   if( !is.null(log_Bratio_ctl)) Return = c( Return, list("log_Bratio_ctl"=log_Bratio_ctl) )
   if( !is.null(Fratio_ct)) Return = c( Return, list("Fratio_ct"=Fratio_ct) )
 
-  return( invisible(Return) )
+  return( invisible(byCat) )
 }
